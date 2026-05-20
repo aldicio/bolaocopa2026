@@ -85,7 +85,7 @@
 
         .ranking-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
         }
         .rank-card {
@@ -96,27 +96,31 @@
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .rank-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .rank-card .pontos {
             background: var(--azul-copa);
             color: white;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        /* CONFIGURAÇÃO DA BARRA DE ROLAGEM */
         .tabela-container {
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto; /* Ativa a rolagem horizontal quando faltar espaço */
+            overflow-x: auto; 
             position: relative;
         }
 
         table {
             width: 100%;
-            border-collapse: separate; /* Necessário para fixar colunas com bordas corretas */
+            border-collapse: separate; 
             border-spacing: 0;
             text-align: center;
             font-size: 14px;
@@ -129,7 +133,6 @@
             white-space: nowrap;
         }
 
-        /* Estilo para travar o cabeçalho no topo ao rolar para baixo */
         th {
             background-color: #0f172a;
             color: #ffffff;
@@ -139,7 +142,6 @@
             z-index: 10;
         }
 
-        /* MUDANÇA ANATÔMICA: Fixa a coluna Confronto na esquerda ao rolar de lado */
         .col-confronto {
             min-width: 150px; 
             max-width: 150px;
@@ -147,23 +149,22 @@
             position: sticky;
             left: 0;
             z-index: 5;
-            background-color: #fff; /* Fundo branco padrão */
-            border-right: 2px solid #cbd5e1; /* Borda mais forte para separar o confronto dos palpites */
+            background-color: #fff; 
+            border-right: 2px solid #cbd5e1; 
         }
 
-        /* Garante que o cabeçalho do Confronto também fique fixado na quina superior esquerda */
         th.col-confronto {
             z-index: 15;
             background-color: #0f172a;
         }
 
-        /* MUDANÇA: Medida fixa baseada em nomes de 8 letras */
         .col-palpiteiro {
             min-width: 85px;
             max-width: 85px;
             width: 85px;
             overflow: hidden;
-            text-overflow: ellipsis; /* Se por acaso passar muito, põe '...' elegante */
+            text-overflow: ellipsis;
+            cursor: help; /* Muda o mouse para indicar que há informação ao passar por cima */
         }
 
         .linha-alinhada {
@@ -206,11 +207,9 @@
             height: 6px;
         }
 
-        /* Efeito Zebra - Linhas Pares */
         tr:nth-child(even) td {
             background-color: var(--cinza-intercalado);
         }
-        /* Garante que o confronto fixado também pegue o cinza na linha par */
         tr:nth-child(even) .col-confronto {
             background-color: var(--cinza-intercalado);
         }
@@ -218,6 +217,7 @@
         @media (max-width: 768px) {
             body { padding: 10px; }
             th, td { padding: 6px 8px; font-size: 12px; }
+            .col-confronto { min-width: 140px; }
             .topo-ranking { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
@@ -226,7 +226,7 @@
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO DA COPA DO MUNDO 2026 ⚽</h1>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
@@ -256,8 +256,9 @@
 </div>
 
 <script>
+    // Função para tratar cores e aplicar contraste de fonte automático
     function aplicarContrasteTexto(elemento, corHex) {
-        if (!corHex || corHex === "#ffffff") return;
+        if (!corHex || corHex === "#ffffff") return "claro";
         elemento.style.backgroundColor = corHex;
         
         let hex = corHex.replace('#', '');
@@ -269,11 +270,22 @@
         
         if (isNaN(r) || isNaN(g) || isNaN(b)) {
             elemento.style.color = "#000000";
-            return;
+            return "claro";
         }
         
         let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
         elemento.style.color = (yiq < 128) ? "#ffffff" : "#000000";
+        return (yiq < 128) ? "escuro" : "claro";
+    }
+
+    // Função para padronizar a leitura das cores que vêm do Sheets
+    function identificarTipoAcerto(corHex) {
+        if (!corHex) return "nenhum";
+        let cor = corHex.toLowerCase().trim();
+        if (cor === "#099078") return "placar";
+        if (cor === "#ffdf49") return "resultado";
+        if (cor === "#ff3d0f") return "bolamurcha";
+        return "nenhum";
     }
 
     fetch('dados.json?t=' + new Date().getTime()) 
@@ -281,22 +293,81 @@
         .then(data => {
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
+            // ==========================================================
+            // 1. PROCESSAMENTO DE ESTATÍSTICAS E CRITÉRIO DE DESEMPATE
+            // ==========================================================
+            let participantesStats = data.ranking.map(amigo => {
+                let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
+                
+                // Varre todos os jogos da Copa computando o desempenho deste amigo
+                data.jogos.forEach(jogo => {
+                    let palpite = jogo.palpites[amigo.nome];
+                    if (palpite && palpite.placar !== "") {
+                        let tipo = identificarTipoAcerto(palpite.cor);
+                        if (tipo !== "nenhum") contadores[tipo]++;
+                    }
+                });
+                
+                return {
+                    nome: amigo.nome,
+                    pontos: amigo.pontos,
+                    stats: contadores
+                };
+            });
+
+            // ORDENAÇÃO DE DESEMPATE MATEMÁTICO:
+            // Critério 1: Maior Pontuação Total.
+            // Critério 2: Maior número de "Placares Exatos" (Desempate oficial).
+            participantesStats.sort((a, b) => {
+                if (b.pontos !== a.pontos) {
+                    return b.pontos - a.pontos;
+                }
+                return b.stats.placar - a.stats.placar;
+            });
+
+            // ==========================================================
+            // 2. CONSTRUÇÃO DO RANKING COM POSIÇÕES IGUAIS (EMPATE)
+            // ==========================================================
             const rankingContainer = document.getElementById('ranking-container');
-            data.ranking.forEach((pos, index) => {
+            let posicaoAtual = 1;
+
+            participantesStats.forEach((pos, index) => {
+                // Se não for o primeiro da lista, e pontuar IGUAL além de empatar nos Placares Exatos: divide a posição
+                if (index > 0) {
+                    let anterior = participantesStats[index - 1];
+                    if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
+                        posicaoAtual = index + 1; // Só pula a posição se quebrar os dois critérios
+                    }
+                }
+
+                // Cria o texto flutuante (Title) para o card do ranking também
+                let strTooltip = `Placares: ${pos.stats.placar} | Resultados: ${pos.stats.resultado} | Bola Murcha: ${pos.stats.bolamurcha}`;
+
                 const card = document.createElement('div');
                 card.className = 'rank-card';
-                card.innerHTML = `<span>${index + 1}° ${pos.nome}</span> <span class="pontos">${pos.pontos} pts</span>`;
+                card.title = strTooltip;
+                card.innerHTML = `
+                    <span>${posicaoAtual}° ${pos.nome}</span> 
+                    <span class="pontos" style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+                        <span>${pos.pontos} pts</span>
+                        <small style="font-size:9px; opacity:0.8;">(${pos.stats.placar} Pl)</small>
+                    </span>`;
                 rankingContainer.appendChild(card);
             });
 
+            // 3. Monta o Cabeçalho da Tabela
             const cabecalho = document.getElementById('cabecalho-tabela');
-            data.ranking.forEach(amigo => {
+            participantesStats.forEach(amigo => {
                 const th = document.createElement('th');
-                th.className = 'col-palpiteiro'; // Aplica a largura fixa no cabeçalho
+                th.className = 'col-palpiteiro';
                 th.innerText = amigo.nome;
+                
+                // Adiciona a legenda ao passar o mouse em cima do nome dele no topo da tabela
+                th.title = `Estatísticas de ${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
                 cabecalho.appendChild(th);
             });
 
+            // 4. Varre os jogos e monta a matriz
             const corpoTabela = document.getElementById('corpo-tabela');
             
             data.jogos.forEach(jogo => {
@@ -327,9 +398,13 @@
                 `;
                 tr.appendChild(tdConfronto);
 
-                data.ranking.forEach(amigo => {
+                // Preenche os palpites respeitando a nova ordenação de desempate
+                participantesStats.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
-                    tdPalpite.className = 'col-palpiteiro'; // Aplica a largura fixa nas células de dados
+                    tdPalpite.className = 'col-palpiteiro';
+                    
+                    // Texto do Tooltip flutuante ao passar o mouse em qualquer célula de palpite
+                    tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
 
                     const dadosPalpite = jogo.palpites[amigo.nome];
 
@@ -341,11 +416,11 @@
                             const p2 = partesPalpite[1].trim();
                             
                             tdPalpite.innerHTML = `
-                                <div class="linha-alinhada" style="justify-content: center; gap: 15px;">
+                                <div class="linha-alinhada" style="justify-content: center;">
                                     <span class="gol-palpite">${p1}</span>
                                 </div>
                                 <div class="espaco-jogo"></div>
-                                <div class="linha-alinhada" style="justify-content: center; gap: 15px;">
+                                <div class="linha-alinhada" style="justify-content: center;">
                                     <span class="gol-palpite">${p2}</span>
                                 </div>
                             `;
