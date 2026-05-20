@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Oficial - Bolão Copa 2026</title>
+    <style>
+        :root {
+            --bg-principal: #f8f9fa;
+            --azul-copa: #0d6efd;
+            --texto-escuro: #212529;
+            --borda: #dee2e6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-principal);
+            color: var(--texto-escuro);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 28px; }
+        .atualizacao { color: #64748b; font-size: 14px; }
+
+        /* Estilo do Ranking / Podio */
+        .ranking-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .ranking-box h2 { margin-top: 0; color: var(--azul-copa); }
+        .ranking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .rank-card {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        .rank-card .pontos {
+            background: var(--azul-copa);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Tabela União / Matriz Geral */
+        .tabela-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid var(--borda);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .col-times {
+            text-align: left;
+            font-weight: bold;
+            background-color: #f8fafc;
+            min-width: 180px;
+        }
+        
+        .col-real {
+            font-weight: bold;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Ajuste fino para os blocos de dois confrontos */
+        tr:nth-child(4n+1) td, tr:nth-child(4n+2) td {
+            background-opacity: 0.05;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            th, td { padding: 8px 10px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
+        <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
+    </header>
+
+    <div class="ranking-box">
+        <h2>📊 Classificação Geral</h2>
+        <div class="ranking-grid" id="ranking-container"></div>
+    </div>
+
+    <div class="tabela-container">
+        <table id="tabela-bolao">
+            <thead>
+                <tr id="cabecalho-tabela">
+                    <th>Confronto</th>
+                    <th>Placar Real</th>
+                    </tr>
+            </thead>
+            <tbody id="corpo-tabela">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Carrega o arquivo JSON gerado pelo seu Google Sheets
+    fetch('dados.json?t=' + new Date().getTime()) // Evita o cache do navegador
+        .then(response => response.json())
+        .then(data => {
+            // 1. Atualiza a data de modificação
+            document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
+
+            // 2. Monta o Grid de Ranking Ordenado
+            const rankingContainer = document.getElementById('ranking-container');
+            data.ranking.forEach((pos, index) => {
+                const card = document.createElement('div');
+                card.className = 'rank-card';
+                card.innerHTML = `<span>${index + 1}° ${pos.nome}</span> <span class="pontos">${pos.pontos} pts</span>`;
+                rankingContainer.appendChild(card);
+            });
+
+            // 3. Monta o Cabeçalho da Tabela com os Amigos
+            const cabecalho = document.getElementById('cabecalho-tabela');
+            data.ranking.forEach(amigo => {
+                const th = document.createElement('th');
+                th.innerText = amigo.nome;
+                cabecalho.appendChild(th);
+            });
+
+            // 4. Varre os jogos e monta a matriz na tela
+            const corpoTabela = document.getElementById('corpo-tabela');
+            
+            data.jogos.forEach(jogo => {
+                const tr = document.createElement('tr');
+                
+                // Coluna 1: Times do confronto
+                const tdConfronto = document.createElement('td');
+                tdConfronto.className = 'col-times';
+                tdConfronto.innerHTML = `${jogo.time1}<br><small style='color:#64748b; font-weight:normal;'>vs</small><br>${jogo.time2}`;
+                tr.appendChild(tdConfronto);
+
+                // Coluna 2: Resultado Real da Copa
+                const tdReal = document.createElement('td');
+                tdReal.className = 'col-real';
+                tdReal.innerText = jogo.resultadoReal;
+                tr.appendChild(tdReal);
+
+                // Colunas seguintes: Palpites de cada amigo respeitando a ordem do Ranking
+                data.ranking.forEach(amigo => {
+                    const tdPalpite = document.createElement('td');
+                    const dadosPalpite = jogo.palpites[amigo.nome];
+
+                    if (dadosPalpite) {
+                        tdPalpite.innerText = dadosPalpite.placar !== "" ? dadosPalpite.placar : "-";
+                        
+                        // Aplica a cor exata de fundo que o script do Google Sheets determinou
+                        if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
+                            tdPalpite.style.backgroundColor = dadosPalpite.cor;
+                        }
+                    } else {
+                        tdPalpite.innerText = "-";
+                    }
+                    tr.appendChild(tdPalpite);
+                });
+
+                corpoTabela.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error("Erro ao ler dados do bolão:", error);
+            document.getElementById('data-atualizacao').innerText = "Erro ao carregar dados do painel.";
+        });
+</script>
+
+</body>
+</html>
