@@ -292,4 +292,51 @@
                         
                         if (partesPalpite.length === 2) {
                             const p1 = partesPalpite[0].trim();
-                            const p2 = partesPalpite
+                            const p2 = partesPalpite[1].trim();
+                            
+                            tdPalpite.innerHTML = `
+                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
+                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                    <span class="gol-palpite">${p1}</span>
+                                </div>
+                                <div class="espaco-jogo"></div>
+                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
+                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                    <span class="gol-palpite">${p2}</span>
+                                </div>
+                            `;
+                        } else {
+                            tdPalpite.innerText = "-";
+                        }
+                        
+                        if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
+                            tdPalpite.style.backgroundColor = dadosPalpite.cor;
+                            
+                            // Ajusta a cor da fonte interna para branco nas cores escuras (Verde e Vermelho) para dar leitura
+                            if (dadosPalpite.cor === "#099078" || dadosPalpite.cor === "#FF3D0F") {
+                                tdPalpite.style.color = "#ffffff";
+                            } else {
+                                tdPalpite.style.color = "#000000";
+                            }
+                        }
+                    } else {
+                        tdPalpite.innerHTML = `
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                            <div class="espaco-jogo"></div>
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                        `;
+                    }
+                    tr.appendChild(tdPalpite);
+                });
+
+                corpoTabela.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error("Erro ao ler dados do bolão:", error);
+            document.getElementById('data-atualizacao').innerText = "Erro ao carregar dados do painel.";
+        });
+</script>
+
+</body>
+</html>
