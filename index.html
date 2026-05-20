@@ -10,7 +10,7 @@
             --azul-copa: #0d6efd;
             --texto-escuro: #212529;
             --borda: #dee2e6;
-            --cinza-intercalado: #f1f5f9; /* Cor cinza claro para o efeito zebra */
+            --cinza-intercalado: #f1f5f9; 
         }
 
         body {
@@ -81,11 +81,11 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 1px solid var(--borda);
             white-space: nowrap;
         }
@@ -98,31 +98,50 @@
             top: 0;
         }
 
-        /* Estrutura invisível alinhada para os Times e Gols */
+        /* MUDANÇA: Redução da largura mínima da coluna de confrontos */
         .col-confronto {
-            min-width: 220px;
-            padding: 8px 15px;
+            min-width: 160px; 
+            max-width: 200px;
+            padding: 8px 12px;
+            background-color: #f8fafc;
         }
 
-        .linha-time {
+        /* Container flexível para alinhar Nome à esquerda e Gols à direita */
+        .linha-alinhada {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
-            height: 24px;
+            height: 22px;
         }
 
         .nome-time {
             text-align: left;
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
+        /* Estilo das caixas de gols reais */
         .gol-real {
             background: #e2e8f0;
             color: #0f172a;
             border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 14px;
-            min-width: 12px;
+            padding: 1px 6px;
+            font-weight: bold;
+            font-size: 13px;
+            min-width: 10px;
+            text-align: center;
+        }
+
+        /* Estilo das caixas de palpites empilhados */
+        .gol-palpite {
+            background: rgba(0, 0, 0, 0.06);
+            color: #000;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-weight: bold;
+            font-size: 13px;
+            min-width: 10px;
             text-align: center;
         }
 
@@ -130,15 +149,15 @@
             height: 6px;
         }
 
-        /* INTERCALAÇÃO DE DIRETRIZ: Efeito Zebra por jogo completo (Linha sim, linha não) */
+        /* Efeito Zebra por jogo completo */
         tr:nth-child(even) {
             background-color: var(--cinza-intercalado);
         }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
-            th, td { padding: 8px 10px; font-size: 13px; }
-            .col-confronto { min-width: 180px; }
+            th, td { padding: 6px 8px; font-size: 12px; }
+            .col-confronto { min-width: 140px; }
         }
     </style>
 </head>
@@ -169,7 +188,7 @@
 </div>
 
 <script>
-    fetch('dados.json?t=' + new Date().getTime()) // Força o navegador a buscar os dados novos sem cache
+    fetch('dados.json?t=' + new Date().getTime()) 
         .then(response => response.json())
         .then(data => {
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
@@ -197,7 +216,7 @@
             data.jogos.forEach(jogo => {
                 const tr = document.createElement('tr');
                 
-                // Quebra a string do resultado real para pegar os gols separados
+                // Quebra o resultado real
                 let gol1 = "-";
                 let gol2 = "-";
                 if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
@@ -208,36 +227,60 @@
                     }
                 }
                 
-                // Coluna 1: Confronto com a estrutura invisível (Time à esquerda | Gol à direita)
+                // Coluna 1: Confronto (Time à esquerda | Gol à direita)
                 const tdConfronto = document.createElement('td');
                 tdConfronto.className = 'col-confronto';
                 tdConfronto.innerHTML = `
-                    <div class="linha-time">
+                    <div class="linha-alinhada">
                         <span class="nome-time">${jogo.time1}</span>
                         <span class="gol-real">${gol1}</span>
                     </div>
                     <div class="espaco-jogo"></div>
-                    <div class="linha-time">
+                    <div class="linha-alinhada">
                         <span class="nome-time">${jogo.time2}</span>
                         <span class="gol-real">${gol2}</span>
                     </div>
                 `;
                 tr.appendChild(tdConfronto);
 
-                // Colunas seguintes: Palpites de cada amigo na ordem do Ranking
+                // Colunas seguintes: Palpites de cada amigo reorganizados no estilo do confronto
                 data.ranking.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     const dadosPalpite = jogo.palpites[amigo.nome];
 
-                    if (dadosPalpite) {
-                        tdPalpite.innerText = dadosPalpite.placar !== "" ? dadosPalpite.placar : "-";
+                    if (dadosPalpite && dadosPalpite.placar !== "") {
+                        const partesPalpite = dadosPalpite.placar.split("x");
                         
-                        // Resgata a cor exata calculada pelo Google Sheets
+                        if (partesPalpite.length === 2) {
+                            const p1 = partesPalpite[0].trim();
+                            const p2 = partesPalpite[1].trim();
+                            
+                            // Nova estrutura didática para os palpites (Gols alinhados verticalmente)
+                            tdPalpite.innerHTML = `
+                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
+                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                    <span class="gol-palpite">${p1}</span>
+                                </div>
+                                <div class="espaco-jogo"></div>
+                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
+                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                    <span class="gol-palpite">${p2}</span>
+                                </div>
+                            `;
+                        } else {
+                            tdPalpite.innerText = "-";
+                        }
+                        
+                        // Aplica a cor de acerto calculada pelo Sheets
                         if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
                             tdPalpite.style.backgroundColor = dadosPalpite.cor;
                         }
                     } else {
-                        tdPalpite.innerText = "-";
+                        tdPalpite.innerHTML = `
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                            <div class="espaco-jogo"></div>
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                        `;
                     }
                     tr.appendChild(tdPalpite);
                 });
