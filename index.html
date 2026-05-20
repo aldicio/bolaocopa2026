@@ -12,10 +12,10 @@
             --borda: #dee2e6;
             --cinza-intercalado: #f1f5f9; 
             
-            /* ATUALIZAÇÃO: Cores vibrantes idênticas às da sua planilha */
-            --cor-placar: #099078;     /* Verde */
-            --cor-resultado: #FFDF49;  /* Amarelo */
-            --cor-bolamurcha: #FF3D0F; /* Vermelho */
+            /* Cores oficiais da legenda */
+            --cor-placar: #099078;     
+            --cor-resultado: #FFDF49;  
+            --cor-bolamurcha: #FF3D0F; 
         }
 
         body {
@@ -27,7 +27,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
@@ -40,10 +40,9 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 32px; }
+        h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 28px; }
         .atualizacao { color: #64748b; font-size: 14px; }
 
-        /* Estrutura do bloco do Ranking e das Legendas */
         .ranking-box {
             background: #fff;
             padding: 20px;
@@ -52,13 +51,12 @@
             margin-bottom: 30px;
         }
         
-        /* MUDANÇA: Alinhamento magnético à esquerda grudado no título */
         .topo-ranking {
             display: flex;
             justify-content: flex-start;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px; /* Espaço elegante entre o título e o início da legenda */
+            gap: 20px; 
             margin-bottom: 20px;
             border-bottom: 2px solid var(--bg-principal);
             padding-bottom: 15px;
@@ -66,7 +64,6 @@
         
         .topo-ranking h2 { margin: 0; color: var(--azul-copa); white-space: nowrap; }
         
-        /* Estilização da Legenda Dinâmica */
         .legenda-container {
             display: flex;
             gap: 10px;
@@ -82,7 +79,6 @@
             border: 1px solid rgba(0,0,0,0.1);
         }
         
-        /* Ajuste de contraste do texto dependendo do fundo */
         .legenda-placar { background-color: var(--cor-placar); color: #ffffff; }
         .legenda-resultado { background-color: var(--cor-resultado); color: #000000; }
         .legenda-bolamurcha { background-color: var(--cor-bolamurcha); color: #ffffff; }
@@ -109,39 +105,65 @@
             font-size: 14px;
         }
 
-        /* Tabela Matriz Geral */
+        /* CONFIGURAÇÃO DA BARRA DE ROLAGEM */
         .tabela-container {
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto;
+            overflow-x: auto; /* Ativa a rolagem horizontal quando faltar espaço */
+            position: relative;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* Necessário para fixar colunas com bordas corretas */
+            border-spacing: 0;
             text-align: center;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         th, td {
             padding: 10px 12px;
-            border: 1px solid var(--borda);
+            border-right: 1px solid var(--borda);
+            border-bottom: 1px solid var(--borda);
             white-space: nowrap;
         }
 
+        /* Estilo para travar o cabeçalho no topo ao rolar para baixo */
         th {
             background-color: #0f172a;
             color: #ffffff;
             font-weight: 600;
             position: sticky;
             top: 0;
+            z-index: 10;
         }
 
+        /* MUDANÇA ANATÔMICA: Fixa a coluna Confronto na esquerda ao rolar de lado */
         .col-confronto {
-            min-width: 60px; 
-            max-width: 70px;
+            min-width: 150px; 
+            max-width: 150px;
             padding: 8px 12px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background-color: #fff; /* Fundo branco padrão */
+            border-right: 2px solid #cbd5e1; /* Borda mais forte para separar o confronto dos palpites */
+        }
+
+        /* Garante que o cabeçalho do Confronto também fique fixado na quina superior esquerda */
+        th.col-confronto {
+            z-index: 15;
+            background-color: #0f172a;
+        }
+
+        /* MUDANÇA: Medida fixa baseada em nomes de 8 letras */
+        .col-palpiteiro {
+            min-width: 85px;
+            max-width: 85px;
+            width: 85px;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Se por acaso passar muito, põe '...' elegante */
         }
 
         .linha-alinhada {
@@ -184,14 +206,18 @@
             height: 6px;
         }
 
+        /* Efeito Zebra - Linhas Pares */
         tr:nth-child(even) td {
+            background-color: var(--cinza-intercalado);
+        }
+        /* Garante que o confronto fixado também pegue o cinza na linha par */
+        tr:nth-child(even) .col-confronto {
             background-color: var(--cinza-intercalado);
         }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
             th, td { padding: 6px 8px; font-size: 12px; }
-            .col-confronto { min-width: 100px; }
             .topo-ranking { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
@@ -220,22 +246,41 @@
         <table id="tabela-bolao">
             <thead>
                 <tr id="cabecalho-tabela">
-                    <th>Confronto</th>
-                    </tr>
+                    <th class="col-confronto">Confronto</th>
+                </tr>
             </thead>
             <tbody id="corpo-tabela">
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
+    function aplicarContrasteTexto(elemento, corHex) {
+        if (!corHex || corHex === "#ffffff") return;
+        elemento.style.backgroundColor = corHex;
+        
+        let hex = corHex.replace('#', '');
+        if (hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
+        
+        let r = parseInt(hex.substr(0, 2), 16);
+        let g = parseInt(hex.substr(2, 2), 16);
+        let b = parseInt(hex.substr(4, 2), 16);
+        
+        if (isNaN(r) || isNaN(g) || isNaN(b)) {
+            elemento.style.color = "#000000";
+            return;
+        }
+        
+        let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        elemento.style.color = (yiq < 128) ? "#ffffff" : "#000000";
+    }
+
     fetch('dados.json?t=' + new Date().getTime()) 
         .then(response => response.json())
         .then(data => {
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            // 1. Monta o Grid de Ranking Ordenado
             const rankingContainer = document.getElementById('ranking-container');
             data.ranking.forEach((pos, index) => {
                 const card = document.createElement('div');
@@ -244,15 +289,14 @@
                 rankingContainer.appendChild(card);
             });
 
-            // 2. Monta o Cabeçalho da Tabela com os Amigos
             const cabecalho = document.getElementById('cabecalho-tabela');
             data.ranking.forEach(amigo => {
                 const th = document.createElement('th');
+                th.className = 'col-palpiteiro'; // Aplica a largura fixa no cabeçalho
                 th.innerText = amigo.nome;
                 cabecalho.appendChild(th);
             });
 
-            // 3. Varre os jogos e monta a matriz na tela
             const corpoTabela = document.getElementById('corpo-tabela');
             
             data.jogos.forEach(jogo => {
@@ -285,6 +329,8 @@
 
                 data.ranking.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
+                    tdPalpite.className = 'col-palpiteiro'; // Aplica a largura fixa nas células de dados
+
                     const dadosPalpite = jogo.palpites[amigo.nome];
 
                     if (dadosPalpite && dadosPalpite.placar !== "") {
@@ -295,13 +341,11 @@
                             const p2 = partesPalpite[1].trim();
                             
                             tdPalpite.innerHTML = `
-                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
-                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                <div class="linha-alinhada" style="justify-content: center; gap: 15px;">
                                     <span class="gol-palpite">${p1}</span>
                                 </div>
                                 <div class="espaco-jogo"></div>
-                                <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
-                                    <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
+                                <div class="linha-alinhada" style="justify-content: center; gap: 15px;">
                                     <span class="gol-palpite">${p2}</span>
                                 </div>
                             `;
@@ -310,14 +354,7 @@
                         }
                         
                         if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
-                            tdPalpite.style.backgroundColor = dadosPalpite.cor;
-                            
-                            // Ajusta a cor da fonte interna para branco nas cores escuras (Verde e Vermelho) para dar leitura
-                            if (dadosPalpite.cor === "#099078" || dadosPalpite.cor === "#FF3D0F") {
-                                tdPalpite.style.color = "#ffffff";
-                            } else {
-                                tdPalpite.style.color = "#000000";
-                            }
+                            aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
                         }
                     } else {
                         tdPalpite.innerHTML = `
