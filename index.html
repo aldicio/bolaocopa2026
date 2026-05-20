@@ -10,6 +10,7 @@
             --azul-copa: #0d6efd;
             --texto-escuro: #212529;
             --borda: #dee2e6;
+            --cinza-intercalado: #f1f5f9; /* Cor cinza claro para o efeito zebra */
         }
 
         body {
@@ -37,7 +38,7 @@
         h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 28px; }
         .atualizacao { color: #64748b; font-size: 14px; }
 
-        /* Estilo do Ranking / Podio */
+        /* Estilo do Ranking / Pódio */
         .ranking-box {
             background: #fff;
             padding: 20px;
@@ -68,7 +69,7 @@
             font-size: 14px;
         }
 
-        /* Tabela União / Matriz Geral */
+        /* Tabela Matriz Geral */
         .tabela-container {
             background: #fff;
             border-radius: 12px;
@@ -97,27 +98,47 @@
             top: 0;
         }
 
-        .col-times {
-            text-align: left;
-            font-weight: bold;
-            background-color: #f8fafc;
-            min-width: 180px;
-        }
-        
-        .col-real {
-            font-weight: bold;
-            background-color: #f1f5f9;
-            color: #1e293b;
+        /* Estrutura invisível alinhada para os Times e Gols */
+        .col-confronto {
+            min-width: 220px;
+            padding: 8px 15px;
         }
 
-        /* Ajuste fino para os blocos de dois confrontos */
-        tr:nth-child(4n+1) td, tr:nth-child(4n+2) td {
-            background-opacity: 0.05;
+        .linha-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            height: 24px;
+        }
+
+        .nome-time {
+            text-align: left;
+        }
+
+        .gol-real {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 14px;
+            min-width: 12px;
+            text-align: center;
+        }
+
+        .espaco-jogo {
+            height: 6px;
+        }
+
+        /* INTERCALAÇÃO DE DIRETRIZ: Efeito Zebra por jogo completo (Linha sim, linha não) */
+        tr:nth-child(even) {
+            background-color: var(--cinza-intercalado);
         }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
             th, td { padding: 8px 10px; font-size: 13px; }
+            .col-confronto { min-width: 180px; }
         }
     </style>
 </head>
@@ -139,7 +160,6 @@
             <thead>
                 <tr id="cabecalho-tabela">
                     <th>Confronto</th>
-                    <th>Placar Real</th>
                     </tr>
             </thead>
             <tbody id="corpo-tabela">
@@ -149,14 +169,12 @@
 </div>
 
 <script>
-    // Carrega o arquivo JSON gerado pelo seu Google Sheets
-    fetch('dados.json?t=' + new Date().getTime()) // Evita o cache do navegador
+    fetch('dados.json?t=' + new Date().getTime()) // Força o navegador a buscar os dados novos sem cache
         .then(response => response.json())
         .then(data => {
-            // 1. Atualiza a data de modificação
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            // 2. Monta o Grid de Ranking Ordenado
+            // 1. Monta o Grid de Ranking Ordenado
             const rankingContainer = document.getElementById('ranking-container');
             data.ranking.forEach((pos, index) => {
                 const card = document.createElement('div');
@@ -165,7 +183,7 @@
                 rankingContainer.appendChild(card);
             });
 
-            // 3. Monta o Cabeçalho da Tabela com os Amigos
+            // 2. Monta o Cabeçalho da Tabela com os Amigos
             const cabecalho = document.getElementById('cabecalho-tabela');
             data.ranking.forEach(amigo => {
                 const th = document.createElement('th');
@@ -173,25 +191,40 @@
                 cabecalho.appendChild(th);
             });
 
-            // 4. Varre os jogos e monta a matriz na tela
+            // 3. Varre os jogos e monta a matriz na tela
             const corpoTabela = document.getElementById('corpo-tabela');
             
             data.jogos.forEach(jogo => {
                 const tr = document.createElement('tr');
                 
-                // Coluna 1: Times do confronto
+                // Quebra a string do resultado real para pegar os gols separados
+                let gol1 = "-";
+                let gol2 = "-";
+                if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
+                    const partes = jogo.resultadoReal.split("x");
+                    if (partes.length === 2) {
+                        gol1 = partes[0].trim();
+                        gol2 = partes[1].trim();
+                    }
+                }
+                
+                // Coluna 1: Confronto com a estrutura invisível (Time à esquerda | Gol à direita)
                 const tdConfronto = document.createElement('td');
-                tdConfronto.className = 'col-times';
-                tdConfronto.innerHTML = `${jogo.time1}<br><small style='color:#64748b; font-weight:normal;'>vs</small><br>${jogo.time2}`;
+                tdConfronto.className = 'col-confronto';
+                tdConfronto.innerHTML = `
+                    <div class="linha-time">
+                        <span class="nome-time">${jogo.time1}</span>
+                        <span class="gol-real">${gol1}</span>
+                    </div>
+                    <div class="espaco-jogo"></div>
+                    <div class="linha-time">
+                        <span class="nome-time">${jogo.time2}</span>
+                        <span class="gol-real">${gol2}</span>
+                    </div>
+                `;
                 tr.appendChild(tdConfronto);
 
-                // Coluna 2: Resultado Real da Copa
-                const tdReal = document.createElement('td');
-                tdReal.className = 'col-real';
-                tdReal.innerText = jogo.resultadoReal;
-                tr.appendChild(tdReal);
-
-                // Colunas seguintes: Palpites de cada amigo respeitando a ordem do Ranking
+                // Colunas seguintes: Palpites de cada amigo na ordem do Ranking
                 data.ranking.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     const dadosPalpite = jogo.palpites[amigo.nome];
@@ -199,7 +232,7 @@
                     if (dadosPalpite) {
                         tdPalpite.innerText = dadosPalpite.placar !== "" ? dadosPalpite.placar : "-";
                         
-                        // Aplica a cor exata de fundo que o script do Google Sheets determinou
+                        // Resgata a cor exata calculada pelo Google Sheets
                         if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
                             tdPalpite.style.backgroundColor = dadosPalpite.cor;
                         }
