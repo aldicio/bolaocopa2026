@@ -11,6 +11,11 @@
             --texto-escuro: #212529;
             --borda: #dee2e6;
             --cinza-intercalado: #f1f5f9; 
+            
+            /* Cores oficiais extraídas da sua planilha */
+            --cor-placar: #d4edda;     /* Verde claro */
+            --cor-resultado: #fff3cd;  /* Amarelo claro */
+            --cor-bolamurcha: #f8d7da; /* Vermelho claro */
         }
 
         body {
@@ -38,7 +43,7 @@
         h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 28px; }
         .atualizacao { color: #64748b; font-size: 14px; }
 
-        /* Estilo do Ranking / Pódio */
+        /* Estrutura do bloco do Ranking e das Legendas */
         .ranking-box {
             background: #fff;
             padding: 20px;
@@ -46,7 +51,41 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             margin-bottom: 30px;
         }
-        .ranking-box h2 { margin-top: 0; color: var(--azul-copa); }
+        
+        .topo-ranking {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-principal);
+            padding-bottom: 15px;
+        }
+        
+        .topo-ranking h2 { margin: 0; color: var(--azul-copa); }
+        
+        /* Estilização da Legenda Dinâmica */
+        .legenda-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .item-legenda {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e293b;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .legenda-placar { background-color: var(--cor-placar); }
+        .legenda-resultado { background-color: var(--cor-resultado); }
+        .legenda-bolamurcha { background-color: var(--cor-bolamurcha); }
+
         .ranking-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -98,15 +137,12 @@
             top: 0;
         }
 
-        /* Coluna de confrontos ajustada */
         .col-confronto {
             min-width: 160px; 
             max-width: 200px;
             padding: 8px 12px;
-            /* Removido o background fixo antigo para herdar a cor da linha (efeito zebra) */
         }
 
-        /* Container flexível para alinhar Nome à esquerda e Gols à direita */
         .linha-alinhada {
             display: flex;
             justify-content: space-between;
@@ -121,7 +157,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Estilo das caixas de gols reais */
         .gol-real {
             background: #e2e8f0;
             color: #0f172a;
@@ -133,7 +168,6 @@
             text-align: center;
         }
 
-        /* Estilo das caixas de palpites empilhados */
         .gol-palpite {
             background: rgba(0, 0, 0, 0.06);
             color: #000;
@@ -149,7 +183,6 @@
             height: 6px;
         }
 
-        /* ALTERAÇÃO: Efeito Zebra agora pinta a linha inteira (incluindo o confronto) */
         tr:nth-child(even) td {
             background-color: var(--cinza-intercalado);
         }
@@ -158,6 +191,8 @@
             body { padding: 10px; }
             th, td { padding: 6px 8px; font-size: 12px; }
             .col-confronto { min-width: 140px; }
+            .topo-ranking { flex-direction: column; align-items: flex-start; }
+            .legenda-container { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -165,12 +200,19 @@
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
+        <h1>🏆 BOLÃO DA COPA DO MUNDO 2026 ⚽</h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
     <div class="ranking-box">
-        <h2>📊 Classificação Geral</h2>
+        <div class="topo-ranking">
+            <h2>📊 Classificação Geral</h2>
+            <div class="legenda-container">
+                <div class="item-legenda legenda-placar">Placar: 3</div>
+                <div class="item-legenda legenda-resultado">Resultado: 1</div>
+                <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
+            </div>
+        </div>
         <div class="ranking-grid" id="ranking-container"></div>
     </div>
 
@@ -216,7 +258,6 @@
             data.jogos.forEach(jogo => {
                 const tr = document.createElement('tr');
                 
-                // Quebra o resultado real
                 let gol1 = "-";
                 let gol2 = "-";
                 if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
@@ -227,7 +268,6 @@
                     }
                 }
                 
-                // Coluna 1: Confronto (Herda a cor cinza ou branca da linha automaticamente)
                 const tdConfronto = document.createElement('td');
                 tdConfronto.className = 'col-confronto';
                 tdConfronto.innerHTML = `
@@ -243,7 +283,6 @@
                 `;
                 tr.appendChild(tdConfronto);
 
-                // Colunas seguintes: Palpites de cada amigo
                 data.ranking.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     const dadosPalpite = jogo.palpites[amigo.nome];
@@ -270,7 +309,6 @@
                             tdPalpite.innerText = "-";
                         }
                         
-                        // Mantém a cor de acerto do Sheets por cima do cinza do efeito zebra
                         if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
                             tdPalpite.style.backgroundColor = dadosPalpite.cor;
                         }
