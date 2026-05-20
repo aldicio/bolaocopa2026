@@ -98,12 +98,12 @@
             top: 0;
         }
 
-        /* MUDANÇA: Redução da largura mínima da coluna de confrontos */
+        /* Coluna de confrontos ajustada */
         .col-confronto {
             min-width: 160px; 
             max-width: 200px;
             padding: 8px 12px;
-            background-color: #f8fafc;
+            /* Removido o background fixo antigo para herdar a cor da linha (efeito zebra) */
         }
 
         /* Container flexível para alinhar Nome à esquerda e Gols à direita */
@@ -149,8 +149,8 @@
             height: 6px;
         }
 
-        /* Efeito Zebra por jogo completo */
-        tr:nth-child(even) {
+        /* ALTERAÇÃO: Efeito Zebra agora pinta a linha inteira (incluindo o confronto) */
+        tr:nth-child(even) td {
             background-color: var(--cinza-intercalado);
         }
 
@@ -227,7 +227,7 @@
                     }
                 }
                 
-                // Coluna 1: Confronto (Time à esquerda | Gol à direita)
+                // Coluna 1: Confronto (Herda a cor cinza ou branca da linha automaticamente)
                 const tdConfronto = document.createElement('td');
                 tdConfronto.className = 'col-confronto';
                 tdConfronto.innerHTML = `
@@ -243,7 +243,7 @@
                 `;
                 tr.appendChild(tdConfronto);
 
-                // Colunas seguintes: Palpites de cada amigo reorganizados no estilo do confronto
+                // Colunas seguintes: Palpites de cada amigo
                 data.ranking.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     const dadosPalpite = jogo.palpites[amigo.nome];
@@ -255,7 +255,6 @@
                             const p1 = partesPalpite[0].trim();
                             const p2 = partesPalpite[1].trim();
                             
-                            // Nova estrutura didática para os palpites (Gols alinhados verticalmente)
                             tdPalpite.innerHTML = `
                                 <div class="linha-alinhada" style="justify-content: center; gap: 20px;">
                                     <span style="visibility: hidden; font-size: 1px; width: 0;">-</span>
@@ -271,7 +270,7 @@
                             tdPalpite.innerText = "-";
                         }
                         
-                        // Aplica a cor de acerto calculada pelo Sheets
+                        // Mantém a cor de acerto do Sheets por cima do cinza do efeito zebra
                         if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
                             tdPalpite.style.backgroundColor = dadosPalpite.cor;
                         }
