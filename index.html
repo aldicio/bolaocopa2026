@@ -164,7 +164,7 @@
             width: 85px;
             overflow: hidden;
             text-overflow: ellipsis;
-            cursor: help; /* Muda o mouse para indicar que há informação ao passar por cima */
+            cursor: help;
         }
 
         .linha-alinhada {
@@ -226,7 +226,7 @@
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO DA COPA DO MUNDO 2026 ⚽</h1>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
@@ -256,7 +256,6 @@
 </div>
 
 <script>
-    // Função para tratar cores e aplicar contraste de fonte automático
     function aplicarContrasteTexto(elemento, corHex) {
         if (!corHex || corHex === "#ffffff") return "claro";
         elemento.style.backgroundColor = corHex;
@@ -278,7 +277,6 @@
         return (yiq < 128) ? "escuro" : "claro";
     }
 
-    // Função para padronizar a leitura das cores que vêm do Sheets
     function identificarTipoAcerto(corHex) {
         if (!corHex) return "nenhum";
         let cor = corHex.toLowerCase().trim();
@@ -294,12 +292,11 @@
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
             // ==========================================================
-            // 1. PROCESSAMENTO DE ESTATÍSTICAS E CRITÉRIO DE DESEMPATE
+            // 1. PROCESSAMENTO DE ESTATÍSTICAS
             // ==========================================================
             let participantesStats = data.ranking.map(amigo => {
                 let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
                 
-                // Varre todos os jogos da Copa computando o desempenho deste amigo
                 data.jogos.forEach(jogo => {
                     let palpite = jogo.palpites[amigo.nome];
                     if (palpite && palpite.placar !== "") {
@@ -315,32 +312,37 @@
                 };
             });
 
-            // ORDENAÇÃO DE DESEMPATE MATEMÁTICO:
-            // Critério 1: Maior Pontuação Total.
-            // Critério 2: Maior número de "Placares Exatos" (Desempate oficial).
+            // ==========================================================
+            // 2. ALTERAÇÃO: ORDENAÇÃO MULTICRITÉRIO COM ORDEM ALFABÉTICA
+            // ==========================================================
             participantesStats.sort((a, b) => {
+                // 1º Critério: Pontos (Decrescente)
                 if (b.pontos !== a.pontos) {
                     return b.pontos - a.pontos;
                 }
-                return b.stats.placar - a.stats.placar;
+                // 2º Critério: Quantidade de Placares Exatos (Decrescente)
+                if (b.stats.placar !== a.stats.placar) {
+                    return b.stats.placar - a.stats.placar;
+                }
+                // 3º Critério (Novo): Ordem Alfabética (Crescente de A a Z)
+                return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
             });
 
             // ==========================================================
-            // 2. CONSTRUÇÃO DO RANKING COM POSIÇÕES IGUAIS (EMPATE)
+            // 3. CONSTRUÇÃO DO RANKING COM EXIBIÇÃO DE EMPATE REAL
             // ==========================================================
             const rankingContainer = document.getElementById('ranking-container');
             let posicaoAtual = 1;
 
             participantesStats.forEach((pos, index) => {
-                // Se não for o primeiro da lista, e pontuar IGUAL além de empatar nos Placares Exatos: divide a posição
                 if (index > 0) {
                     let anterior = participantesStats[index - 1];
+                    // Só muda o número da posição se houver diferença real de pontos OU de placares exatos
                     if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
-                        posicaoAtual = index + 1; // Só pula a posição se quebrar os dois critérios
+                        posicaoAtual = index + 1; 
                     }
                 }
 
-                // Cria o texto flutuante (Title) para o card do ranking também
                 let strTooltip = `Placares: ${pos.stats.placar} | Resultados: ${pos.stats.resultado} | Bola Murcha: ${pos.stats.bolamurcha}`;
 
                 const card = document.createElement('div');
@@ -355,19 +357,17 @@
                 rankingContainer.appendChild(card);
             });
 
-            // 3. Monta o Cabeçalho da Tabela
+            // 4. Monta o Cabeçalho da Tabela (Agora em Ordem Alfabética nos grupos de empate)
             const cabecalho = document.getElementById('cabecalho-tabela');
             participantesStats.forEach(amigo => {
                 const th = document.createElement('th');
                 th.className = 'col-palpiteiro';
                 th.innerText = amigo.nome;
-                
-                // Adiciona a legenda ao passar o mouse em cima do nome dele no topo da tabela
                 th.title = `Estatísticas de ${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
                 cabecalho.appendChild(th);
             });
 
-            // 4. Varre os jogos e monta a matriz
+            // 5. Varre os jogos e monta a matriz
             const corpoTabela = document.getElementById('corpo-tabela');
             
             data.jogos.forEach(jogo => {
@@ -398,12 +398,9 @@
                 `;
                 tr.appendChild(tdConfronto);
 
-                // Preenche os palpites respeitando a nova ordenação de desempate
                 participantesStats.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     tdPalpite.className = 'col-palpiteiro';
-                    
-                    // Texto do Tooltip flutuante ao passar o mouse em qualquer célula de palpite
                     tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
 
                     const dadosPalpite = jogo.palpites[amigo.nome];
