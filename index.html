@@ -51,9 +51,10 @@
             margin-bottom: 30px;
         }
         
+        /* Ajuste fino no Topo para acomodar Legendas e os Totais Gerais */
         .topo-ranking {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 20px; 
@@ -62,6 +63,12 @@
             padding-bottom: 15px;
         }
         
+        .bloco-titulo-legenda {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .topo-ranking h2 { margin: 0; color: var(--azul-copa); white-space: nowrap; }
         
         .legenda-container {
@@ -82,6 +89,48 @@
         .legenda-placar { background-color: var(--cor-placar); color: #ffffff; }
         .legenda-resultado { background-color: var(--cor-resultado); color: #000000; }
         .legenda-bolamurcha { background-color: var(--cor-bolamurcha); color: #ffffff; }
+
+        /* PAINEL DE TOTAIS GERAIS ACUMULADOS */
+        .totais-gerais-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 10px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .totais-gerais-titulo {
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .totais-gerais-valores {
+            display: flex;
+            gap: 12px;
+        }
+        .total-badge {
+            font-size: 13px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 6px;
+        }
+        .total-badge span {
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 0 6px;
+            border-radius: 4px;
+        }
+        /* Contraste específico para o texto dos números dentro do painel geral */
+        .total-badge.p-g { background-color: var(--cor-placar); color: #fff; }
+        .total-badge.r-g { background-color: var(--cor-resultado); color: #000; }
+        .total-badge.r-g span { background-color: rgba(0, 0, 0, 0.08); }
+        .total-badge.b-g { background-color: var(--cor-bolamurcha); color: #fff; }
 
         .ranking-grid {
             display: grid;
@@ -215,11 +264,8 @@
             background-color: var(--cinza-intercalado);
         }
 
-        /* ==========================================================
-           ESTILOS DO NOVO GRÁFICO 3D (IGUAL À PLANILHA)
-           ========================================================== */
         .grafico-box {
-            background-color: #d1e2d3; /* Tom esverdeado pastel de fundo da sua imagem */
+            background-color: #d1e2d3; 
             border: 2px solid #a3b8a6;
             border-radius: 12px;
             padding: 25px;
@@ -262,44 +308,46 @@
         .area-barra-grafico {
             flex-grow: 1;
             background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%);
-            background-size: 10% 100%; /* Cria as linhas de grade verticais implicitamente */
+            background-size: 10% 100%; 
             position: relative;
             padding: 2px 0;
         }
 
-        /* EFEITO DE BARRA ESPORTIVA 3D */
         .barra-3d {
             height: 24px;
-            background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); /* Degradê cinza azulado */
+            background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); 
             border-top: 1px solid #7ea3b3;
             border-left: 1px solid #7ea3b3;
             border-bottom: 2px solid #1a2930;
             border-right: 2px solid #1a2930;
             position: relative;
-            box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); /* Sombra projetada 3D */
+            box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); 
             transition: width 0.8s ease-out;
-            width: 0%; /* Começa em zero para dar efeito de animação ao abrir */
+            width: 0%; 
             display: flex;
             align-items: center;
             justify-content: flex-end;
         }
 
-        /* NÚMERO INTERNO DA BARRA (VERMELHO COM BORDA RELEVADA) */
         .valor-barra-3d {
             color: #b81d1d;
             font-family: "Impact", "Arial Black", sans-serif;
             font-size: 20px;
             font-weight: bold;
-            margin-right: -25px; /* Joga o número um pouco para a ponta direita */
-            text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; /* Contorno para dar destaque */
+            margin-right: -25px; 
+            text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; 
             z-index: 2;
+        }
+
+        @media (max-width: 900px) {
+            .topo-ranking { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .totais-gerais-box { width: 100%; box-sizing: border-box; }
         }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
             th, td { padding: 6px 8px; font-size: 12px; }
             .col-confronto { min-width: 140px; }
-            .topo-ranking { flex-direction: column; align-items: flex-start; gap: 10px; }
             .label-nome-grafico { width: 90px; font-size: 12px; }
         }
     </style>
@@ -314,11 +362,22 @@
 
     <div class="ranking-box">
         <div class="topo-ranking">
-            <h2>📊 Classificação Geral</h2>
-            <div class="legenda-container">
-                <div class="item-legenda legenda-placar">Placar: 3</div>
-                <div class="item-legenda legenda-resultado">Resultado: 1</div>
-                <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
+            <div class="bloco-titulo-legenda">
+                <h2>📊 Classificação Geral</h2>
+                <div class="legenda-container">
+                    <div class="item-legenda legenda-placar">Placar: 3</div>
+                    <div class="item-legenda legenda-resultado">Resultado: 1</div>
+                    <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
+                </div>
+            </div>
+            
+            <div class="totais-gerais-box">
+                <div class="totais-gerais-titulo">Acumulado Geral do Bolão</div>
+                <div class="totais-gerais-valores">
+                    <div class="total-badge p-g" title="Soma de todos os placares cravados por todos os jogadores">Placares: <span id="global-placares">0</span></div>
+                    <div class="total-badge r-g" title="Soma de todos os acertos de apenas vitória/empate por todos os jogadores">Resultados: <span id="global-resultados">0</span></div>
+                    <div class="total-badge b-g" title="Soma de todos os erros completos por todos os jogadores">Bola Murcha: <span id="global-bolamurcha">0</span></div>
+                </div>
             </div>
         </div>
         <div class="ranking-grid" id="ranking-container"></div>
@@ -337,9 +396,9 @@
     </div>
 
     <div class="grafico-box">
-        <h2>📈 Gráfico de Desempenho Atual (Total de Pontos)</h2>
+        <h2>📈 Gráfico de Desempenho Atuais (Total de Pontos)</h2>
         <div class="container-linhas-grafico" id="grafico-container">
-            </div>
+        </div>
     </div>
 </div>
 
@@ -379,7 +438,12 @@
         .then(data => {
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            // Processamento inicial de dados
+            // Variáveis para somar o acumulado global do grupo inteiro
+            let totalGlobalPlacares = 0;
+            let totalGlobalResultados = 0;
+            let totalGlobalBolaMurcha = 0;
+
+            // 1. PROCESSAMENTO DE ESTATÍSTICAS INDIVIDUAIS E ACUMULAÇÃO GLOBAL
             let participantesStats = data.ranking.map(amigo => {
                 let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
                 
@@ -387,7 +451,13 @@
                     let palpite = jogo.palpites[amigo.nome];
                     if (palpite && palpite.placar !== "") {
                         let tipo = identificarTipoAcerto(palpite.cor);
-                        if (tipo !== "nenhum") contadores[tipo]++;
+                        if (tipo !== "nenhum") {
+                            contadores[tipo]++;
+                            // Soma no acumulador global do painel direito
+                            if (tipo === "placar") totalGlobalPlacares++;
+                            if (tipo === "resultado") totalGlobalResultados++;
+                            if (tipo === "bolamurcha") totalGlobalBolaMurcha++;
+                        }
                     }
                 });
                 
@@ -398,7 +468,12 @@
                 };
             });
 
-            // Ordenação oficial multicritério
+            // Injeta os totais gerais calculados nas caixas do canto superior direito
+            document.getElementById('global-placares').innerText = totalGlobalPlacares;
+            document.getElementById('global-resultados').innerText = totalGlobalResultados;
+            document.getElementById('global-bolamurcha').innerText = totalGlobalBolaMurcha;
+
+            // Ordenação multicritério
             participantesStats.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 if (b.stats.placar !== a.stats.placar) return b.stats.placar - a.stats.placar;
@@ -488,21 +563,15 @@
                 corpoTabela.appendChild(tr);
             });
 
-            // ==========================================================
-            // 4. CONSTRUÇÃO DO NOVO GRÁFICO HORIZONTAL DE BARRAS 3D
-            // ==========================================================
+            // Construção do Gráfico de Barras 3D
             const graficoContainer = document.getElementById('grafico-container');
-            
-            // Descobre o maior score atual para balizar a largura máxima proporcional (100%)
             let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
 
             participantesStats.forEach(amigo => {
                 const linha = document.createElement('div');
                 linha.className = 'linha-grafico';
-
-                // Calcula a largura percentual da barra baseado no líder (escala dinâmica)
                 let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; 
-                if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2; // Evita barras invisíveis para quem tem pouca pontuação
+                if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
 
                 linha.innerHTML = `
                     <div class="label-nome-grafico" title="${amigo.nome}">${amigo.nome}</div>
