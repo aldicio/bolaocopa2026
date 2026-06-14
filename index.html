@@ -116,6 +116,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             overflow-x: auto; 
             position: relative;
+            margin-bottom: 35px;
         }
 
         table {
@@ -214,11 +215,92 @@
             background-color: var(--cinza-intercalado);
         }
 
+        /* ==========================================================
+           ESTILOS DO NOVO GRÁFICO 3D (IGUAL À PLANILHA)
+           ========================================================== */
+        .grafico-box {
+            background-color: #d1e2d3; /* Tom esverdeado pastel de fundo da sua imagem */
+            border: 2px solid #a3b8a6;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .grafico-box h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #1e293b;
+            font-size: 20px;
+            border-bottom: 2px solid #b1c7b4;
+            padding-bottom: 10px;
+        }
+
+        .container-linhas-grafico {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .linha-grafico {
+            display: flex;
+            align-items: center;
+        }
+
+        .label-nome-grafico {
+            width: 120px;
+            text-align: right;
+            padding-right: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .area-barra-grafico {
+            flex-grow: 1;
+            background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%);
+            background-size: 10% 100%; /* Cria as linhas de grade verticais implicitamente */
+            position: relative;
+            padding: 2px 0;
+        }
+
+        /* EFEITO DE BARRA ESPORTIVA 3D */
+        .barra-3d {
+            height: 24px;
+            background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); /* Degradê cinza azulado */
+            border-top: 1px solid #7ea3b3;
+            border-left: 1px solid #7ea3b3;
+            border-bottom: 2px solid #1a2930;
+            border-right: 2px solid #1a2930;
+            position: relative;
+            box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); /* Sombra projetada 3D */
+            transition: width 0.8s ease-out;
+            width: 0%; /* Começa em zero para dar efeito de animação ao abrir */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* NÚMERO INTERNO DA BARRA (VERMELHO COM BORDA RELEVADA) */
+        .valor-barra-3d {
+            color: #b81d1d;
+            font-family: "Impact", "Arial Black", sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: -25px; /* Joga o número um pouco para a ponta direita */
+            text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; /* Contorno para dar destaque */
+            z-index: 2;
+        }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             th, td { padding: 6px 8px; font-size: 12px; }
             .col-confronto { min-width: 140px; }
             .topo-ranking { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .label-nome-grafico { width: 90px; font-size: 12px; }
         }
     </style>
 </head>
@@ -252,6 +334,12 @@
             <tbody id="corpo-tabela">
             </tbody>
         </table>
+    </div>
+
+    <div class="grafico-box">
+        <h2>📈 Gráfico de Desempenho Atual (Total de Pontos)</h2>
+        <div class="container-linhas-grafico" id="grafico-container">
+            </div>
     </div>
 </div>
 
@@ -291,9 +379,7 @@
         .then(data => {
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            // ==========================================================
-            // 1. PROCESSAMENTO DE ESTATÍSTICAS
-            // ==========================================================
+            // Processamento inicial de dados
             let participantesStats = data.ranking.map(amigo => {
                 let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
                 
@@ -312,32 +398,20 @@
                 };
             });
 
-            // ==========================================================
-            // 2. ALTERAÇÃO: ORDENAÇÃO MULTICRITÉRIO COM ORDEM ALFABÉTICA
-            // ==========================================================
+            // Ordenação oficial multicritério
             participantesStats.sort((a, b) => {
-                // 1º Critério: Pontos (Decrescente)
-                if (b.pontos !== a.pontos) {
-                    return b.pontos - a.pontos;
-                }
-                // 2º Critério: Quantidade de Placares Exatos (Decrescente)
-                if (b.stats.placar !== a.stats.placar) {
-                    return b.stats.placar - a.stats.placar;
-                }
-                // 3º Critério (Novo): Ordem Alfabética (Crescente de A a Z)
+                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+                if (b.stats.placar !== a.stats.placar) return b.stats.placar - a.stats.placar;
                 return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
             });
 
-            // ==========================================================
-            // 3. CONSTRUÇÃO DO RANKING COM EXIBIÇÃO DE EMPATE REAL
-            // ==========================================================
+            // Montagem da classificação geral
             const rankingContainer = document.getElementById('ranking-container');
             let posicaoAtual = 1;
 
             participantesStats.forEach((pos, index) => {
                 if (index > 0) {
                     let anterior = participantesStats[index - 1];
-                    // Só muda o número da posição se houver diferença real de pontos OU de placares exatos
                     if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
                         posicaoAtual = index + 1; 
                     }
@@ -357,7 +431,7 @@
                 rankingContainer.appendChild(card);
             });
 
-            // 4. Monta o Cabeçalho da Tabela (Agora em Ordem Alfabética nos grupos de empate)
+            // Cabeçalho da tabela
             const cabecalho = document.getElementById('cabecalho-tabela');
             participantesStats.forEach(amigo => {
                 const th = document.createElement('th');
@@ -367,34 +441,22 @@
                 cabecalho.appendChild(th);
             });
 
-            // 5. Varre os jogos e monta a matriz
+            // Corpo da Tabela de Palpites
             const corpoTabela = document.getElementById('corpo-tabela');
-            
             data.jogos.forEach(jogo => {
                 const tr = document.createElement('tr');
-                
-                let gol1 = "-";
-                let gol2 = "-";
+                let gol1 = "-"; let gol2 = "-";
                 if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
                     const partes = jogo.resultadoReal.split("x");
-                    if (partes.length === 2) {
-                        gol1 = partes[0].trim();
-                        gol2 = partes[1].trim();
-                    }
+                    if (partes.length === 2) { gol1 = partes[0].trim(); gol2 = partes[1].trim(); }
                 }
                 
                 const tdConfronto = document.createElement('td');
                 tdConfronto.className = 'col-confronto';
                 tdConfronto.innerHTML = `
-                    <div class="linha-alinhada">
-                        <span class="nome-time">${jogo.time1}</span>
-                        <span class="gol-real">${gol1}</span>
-                    </div>
+                    <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${gol1}</span></div>
                     <div class="espaco-jogo"></div>
-                    <div class="linha-alinhada">
-                        <span class="nome-time">${jogo.time2}</span>
-                        <span class="gol-real">${gol2}</span>
-                    </div>
+                    <div class="linha-alinhada"><span class="nome-time">${jogo.time2}</span><span class="gol-real">${gol2}</span></div>
                 `;
                 tr.appendChild(tdConfronto);
 
@@ -404,30 +466,16 @@
                     tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
 
                     const dadosPalpite = jogo.palpites[amigo.nome];
-
                     if (dadosPalpite && dadosPalpite.placar !== "") {
                         const partesPalpite = dadosPalpite.placar.split("x");
-                        
                         if (partesPalpite.length === 2) {
-                            const p1 = partesPalpite[0].trim();
-                            const p2 = partesPalpite[1].trim();
-                            
                             tdPalpite.innerHTML = `
-                                <div class="linha-alinhada" style="justify-content: center;">
-                                    <span class="gol-palpite">${p1}</span>
-                                </div>
+                                <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[0].trim()}</span></div>
                                 <div class="espaco-jogo"></div>
-                                <div class="linha-alinhada" style="justify-content: center;">
-                                    <span class="gol-palpite">${p2}</span>
-                                </div>
+                                <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[1].trim()}</span></div>
                             `;
-                        } else {
-                            tdPalpite.innerText = "-";
-                        }
-                        
-                        if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") {
-                            aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
-                        }
+                        } else { tdPalpite.innerText = "-"; }
+                        if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
                     } else {
                         tdPalpite.innerHTML = `
                             <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
@@ -437,8 +485,34 @@
                     }
                     tr.appendChild(tdPalpite);
                 });
-
                 corpoTabela.appendChild(tr);
+            });
+
+            // ==========================================================
+            // 4. CONSTRUÇÃO DO NOVO GRÁFICO HORIZONTAL DE BARRAS 3D
+            // ==========================================================
+            const graficoContainer = document.getElementById('grafico-container');
+            
+            // Descobre o maior score atual para balizar a largura máxima proporcional (100%)
+            let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
+
+            participantesStats.forEach(amigo => {
+                const linha = document.createElement('div');
+                linha.className = 'linha-grafico';
+
+                // Calcula a largura percentual da barra baseado no líder (escala dinâmica)
+                let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; 
+                if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2; // Evita barras invisíveis para quem tem pouca pontuação
+
+                linha.innerHTML = `
+                    <div class="label-nome-grafico" title="${amigo.nome}">${amigo.nome}</div>
+                    <div class="area-barra-grafico">
+                        <div class="barra-3d" style="width: ${pctLargura}%;">
+                            <span class="valor-barra-3d">${amigo.pontos}</span>
+                        </div>
+                    </div>
+                `;
+                graficoContainer.appendChild(linha);
             });
         })
         .catch(error => {
