@@ -20,7 +20,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-principal); 
+            background-color: var(--bg-principal);
             color: var(--texto-escuro);
             margin: 0;
             padding: 20px;
@@ -51,7 +51,6 @@
             margin-bottom: 30px;
         }
         
-        /* Ajuste fino no Topo para acomodar Legendas e os Totais Gerais */
         .topo-ranking {
             display: flex;
             justify-content: space-between;
@@ -69,7 +68,7 @@
             gap: 12px;
         }
 
-        .topo-ranking h2 { margin: 0; color: var(--azul-copa); white-space: nowrap; }
+        .topo-ranking h2 { margin: 0; color: var(--azul-copa); white-space: nowrap; cursor: pointer; user-select: none; }
         
         .legenda-container {
             display: flex;
@@ -90,7 +89,6 @@
         .legenda-resultado { background-color: var(--cor-resultado); color: #000000; }
         .legenda-bolamurcha { background-color: var(--cor-bolamurcha); color: #ffffff; }
 
-        /* PAINEL DE TOTAIS GERAIS ACUMULADOS */
         .totais-gerais-box {
             background-color: #f8fafc;
             border: 1px solid var(--borda);
@@ -126,7 +124,6 @@
             padding: 0 6px;
             border-radius: 4px;
         }
-        /* Contraste específico para o texto dos números dentro do painel geral */
         .total-badge.p-g { background-color: var(--cor-placar); color: #fff; }
         .total-badge.r-g { background-color: var(--cor-resultado); color: #000; }
         .total-badge.r-g span { background-color: rgba(0, 0, 0, 0.08); }
@@ -151,7 +148,7 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
-        .rank-card .pontos {
+        .rank-card .points {
             background: var(--azul-copa);
             color: white;
             padding: 4px 10px;
@@ -356,14 +353,14 @@
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO DA COPA DO MUNDO 2026 ⚽</h1>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
     <div class="ranking-box">
         <div class="topo-ranking">
             <div class="bloco-titulo-legenda">
-                <h2>📊 Classificação Geral</h2>
+                <h2 id="titulo-ranking-clique">📊 Classificação Geral</h2>
                 <div class="legenda-container">
                     <div class="item-legenda legenda-placar">Placar: 3</div>
                     <div class="item-legenda legenda-resultado">Resultado: 1</div>
@@ -374,9 +371,9 @@
             <div class="totais-gerais-box">
                 <div class="totais-gerais-titulo">Acumulado Geral do Bolão</div>
                 <div class="totais-gerais-valores">
-                    <div class="total-badge p-g" title="Soma de todos os placares cravados por todos os jogadores">Placares: <span id="global-placares">0</span></div>
-                    <div class="total-badge r-g" title="Soma de todos os acertos de apenas vitória/empate por todos os jogadores">Resultados: <span id="global-resultados">0</span></div>
-                    <div class="total-badge b-g" title="Soma de todos os erros completos por todos os jogadores">Bola Murcha: <span id="global-bolamurcha">0</span></div>
+                    <div class="total-badge p-g">Placares: <span id="global-placares">0</span></div>
+                    <div class="total-badge r-g">Resultados: <span id="global-resultados">0</span></div>
+                    <div class="total-badge b-g">Bola Murcha: <span id="global-bolamurcha">0</span></div>
                 </div>
             </div>
         </div>
@@ -403,22 +400,18 @@
 </div>
 
 <script>
+    let cacheDadosBolao = null;
+    let statsOrdenadasGlobais = [];
+
     function aplicarContrasteTexto(elemento, corHex) {
         if (!corHex || corHex === "#ffffff") return "claro";
         elemento.style.backgroundColor = corHex;
-        
         let hex = corHex.replace('#', '');
         if (hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
-        
         let r = parseInt(hex.substr(0, 2), 16);
         let g = parseInt(hex.substr(2, 2), 16);
         let b = parseInt(hex.substr(4, 2), 16);
-        
-        if (isNaN(r) || isNaN(g) || isNaN(b)) {
-            elemento.style.color = "#000000";
-            return "claro";
-        }
-        
+        if (isNaN(r) || isNaN(g) || isNaN(b)) { elemento.style.color = "#000000"; return "claro"; }
         let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
         elemento.style.color = (yiq < 128) ? "#ffffff" : "#000000";
         return (yiq < 128) ? "escuro" : "claro";
@@ -426,24 +419,23 @@
 
     function identificarTipoAcerto(corHex) {
         if (!corHex) return "nenhum";
-        let cor = corHex.toLowerCase().trim();
-        if (cor === "#099078") return "placar";
-        if (cor === "#ffdf49") return "resultado";
-        if (cor === "#ff3d0f") return "bolamurcha";
+        let col = corHex.toLowerCase().trim();
+        if (col === "#099078") return "placar";
+        if (col === "#ffdf49") return "resultado";
+        if (col === "#ff3d0f") return "bolamurcha";
         return "nenhum";
     }
 
     fetch('dados.json?t=' + new Date().getTime()) 
         .then(response => response.json())
         .then(data => {
+            cacheDadosBolao = data;
             document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            // Variáveis para somar o acumulado global do grupo inteiro
             let totalGlobalPlacares = 0;
             let totalGlobalResultados = 0;
             let totalGlobalBolaMurcha = 0;
 
-            // 1. PROCESSAMENTO DE ESTATÍSTICAS INDIVIDUAIS E ACUMULAÇÃO GLOBAL
             let participantesStats = data.ranking.map(amigo => {
                 let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
                 
@@ -453,7 +445,6 @@
                         let tipo = identificarTipoAcerto(palpite.cor);
                         if (tipo !== "nenhum") {
                             contadores[tipo]++;
-                            // Soma no acumulador global do painel direito
                             if (tipo === "placar") totalGlobalPlacares++;
                             if (tipo === "resultado") totalGlobalResultados++;
                             if (tipo === "bolamurcha") totalGlobalBolaMurcha++;
@@ -461,62 +452,31 @@
                     }
                 });
                 
-                return {
-                    nome: amigo.nome,
-                    pontos: amigo.pontos,
-                    stats: contadores
-                };
+                return { nome: amigo.nome, pontos: amigo.pontos, stats: contadores };
             });
 
-            // Injeta os totais gerais calculados nas caixas do canto superior direito
             document.getElementById('global-placares').innerText = totalGlobalPlacares;
             document.getElementById('global-resultados').innerText = totalGlobalResultados;
             document.getElementById('global-bolamurcha').innerText = totalGlobalBolaMurcha;
 
-            // Ordenação multicritério
             participantesStats.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 if (b.stats.placar !== a.stats.placar) return b.stats.placar - a.stats.placar;
                 return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
             });
+            
+            statsOrdenadasGlobais = participantesStats;
 
-            // Montagem da classificação geral
-            const rankingContainer = document.getElementById('ranking-container');
-            let posicaoAtual = 1;
+            renderizarRankingGrid();
 
-            participantesStats.forEach((pos, index) => {
-                if (index > 0) {
-                    let anterior = participantesStats[index - 1];
-                    if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
-                        posicaoAtual = index + 1; 
-                    }
-                }
-
-                let strTooltip = `Placares: ${pos.stats.placar} | Resultados: ${pos.stats.resultado} | Bola Murcha: ${pos.stats.bolamurcha}`;
-
-                const card = document.createElement('div');
-                card.className = 'rank-card';
-                card.title = strTooltip;
-                card.innerHTML = `
-                    <span>${posicaoAtual}° ${pos.nome}</span> 
-                    <span class="pontos" style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-                        <span>${pos.pontos} pts</span>
-                        <small style="font-size:9px; opacity:0.8;">(${pos.stats.placar} Pl)</small>
-                    </span>`;
-                rankingContainer.appendChild(card);
-            });
-
-            // Cabeçalho da tabela
             const cabecalho = document.getElementById('cabecalho-tabela');
             participantesStats.forEach(amigo => {
                 const th = document.createElement('th');
                 th.className = 'col-palpiteiro';
                 th.innerText = amigo.nome;
-                th.title = `Estatísticas de ${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
                 cabecalho.appendChild(th);
             });
 
-            // Corpo da Tabela de Palpites
             const corpoTabela = document.getElementById('corpo-tabela');
             data.jogos.forEach(jogo => {
                 const tr = document.createElement('tr');
@@ -538,8 +498,6 @@
                 participantesStats.forEach(amigo => {
                     const tdPalpite = document.createElement('td');
                     tdPalpite.className = 'col-palpiteiro';
-                    tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
-
                     const dadosPalpite = jogo.palpites[amigo.nome];
                     if (dadosPalpite && dadosPalpite.placar !== "") {
                         const partesPalpite = dadosPalpite.placar.split("x");
@@ -563,7 +521,6 @@
                 corpoTabela.appendChild(tr);
             });
 
-            // Construção do Gráfico de Barras 3D
             const graficoContainer = document.getElementById('grafico-container');
             let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
 
@@ -584,10 +541,194 @@
                 graficoContainer.appendChild(linha);
             });
         })
-        .catch(error => {
-            console.error("Erro ao ler dados do bolão:", error);
-            document.getElementById('data-atualizacao').innerText = "Erro ao carregar dados do painel.";
+        .catch(error => { console.error(error); });
+
+    function renderizarRankingGrid() {
+        const rankingContainer = document.getElementById('ranking-container');
+        rankingContainer.innerHTML = "";
+        let posicaoAtual = 1;
+
+        statsOrdenadasGlobais.forEach((pos, index) => {
+            if (index > 0) {
+                let anterior = statsOrdenadasGlobais[index - 1];
+                if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
+                    posicaoAtual = index + 1; 
+                }
+            }
+            let strTooltip = `Placares: ${pos.stats.placar} | Resultados: ${pos.stats.resultado} | Bola Murcha: ${pos.stats.bolamurcha}`;
+            const card = document.createElement('div');
+            card.className = 'rank-card';
+            card.title = strTooltip;
+            card.innerHTML = `
+                <span>${posicaoAtual}° ${pos.nome}</span> 
+                <span class="points"><span>${pos.pontos} pts</span></span>`;
+            rankingContainer.appendChild(card);
         });
+    }
+
+    // ==========================================================
+    // SIMULADOR DE MONTE CARLO - ADAPTATIVO POR DADOS REAIS DA COPA
+    // ==========================================================
+    document.getElementById('titulo-ranking-clique').addEventListener('dblclick', () => {
+        if (!cacheDadosBolao) return;
+        
+        // 1. Separa os jogos que já aconteceram e os que faltam acontecer
+        let jogosRealizados = cacheDadosBolao.jogos.filter(j => j.resultadoReal && j.resultadoReal !== "A jogar");
+        let jogosPendentes = cacheDadosBolao.jogos.filter(j => !j.resultadoReal || j.resultadoReal === "A jogar");
+        
+        if (jogosPendentes.length === 0) {
+            alert("Todos os jogos já terminaram!");
+            return;
+        }
+
+        // 2. MÁGICA: Calcula a tendência estatística empírica da Copa 2026 até agora
+        let vTimeA = 0; let empates = 0; let vTimeB = 0;
+        
+        jogosRealizados.forEach(j => {
+            let partes = j.resultadoReal.split("x");
+            if (partes.length === 2) {
+                let g1 = parseInt(partes[0].trim());
+                let g2 = parseInt(partes[1].trim());
+                if (g1 > g2) vTimeA++;
+                else if (g1 === g2) empates++;
+                else vTimeB++;
+            }
+        });
+
+        // Configuração de pesos padrão (Histórica) caso tenham poucas partidas realizadas no início
+        let pesoA = 0.45; let pesoE = 0.30; let pesoB = 0.25;
+        let totalJogados = jogosRealizados.length;
+
+        // Se já tivermos uma amostragem decente (10 ou mais jogos), mudamos para os pesos REAIS da Copa de 2026
+        if (totalJogados >= 10) {
+            pesoA = vTimeA / totalJogados;
+            pesoE = empates / totalJogados;
+            pesoB = vTimeB / totalJogados;
+        }
+
+        // Dicionário de vitórias simuladas
+        let vitoriasSimuladas = {};
+        statsOrdenadasGlobais.forEach(p => vitoriasSimuladas[p.nome] = 0);
+
+        const RODADAS_SIMULACAO = 2000;
+
+        for (let r = 0; r < RODADAS_SIMULACAO; r++) {
+            let tabelaFicticia = statsOrdenadasGlobais.map(p => ({
+                nome: p.nome,
+                pontos: p.pontos,
+                placaresFicticios: p.stats.placar
+            }));
+
+            jogosPendentes.forEach(jogo => {
+                let rng = Math.random();
+                let g1Simulado = 0; let g2Simulado = 0;
+
+                // Sorteia o desfecho respeitando a tendência empírica da Copa calculada dinamicamente
+                if (rng < pesoA) {
+                    g1Simulado = Math.floor(Math.random() * 3) + 1;
+                    g2Simulado = Math.floor(Math.random() * g1Simulado);
+                } else if (rng < (pesoA + pesoE)) {
+                    g1Simulado = Math.floor(Math.random() * 3);
+                    g2Simulado = g1Simulado;
+                } else {
+                    g2Simulado = Math.floor(Math.random() * 3) + 1;
+                    g1Simulado = Math.floor(Math.random() * g2Simulado);
+                }
+
+                let sinalReal = g1Simulado > g2Simulado ? 'M' : (g1Simulado < g2Simulado ? 'V' : 'E');
+
+                tabelaFicticia.forEach(p => {
+                    let palpite = jogo.palpites[p.nome];
+                    if (palpite && palpite.placar !== "") {
+                        let partes = palpite.placar.split("x");
+                        if (partes.length === 2) {
+                            let p1 = parseInt(partes[0].trim());
+                            let p2 = parseInt(partes[1].trim());
+                            let sinalPalpite = p1 > p2 ? 'M' : (p1 < p2 ? 'V' : 'E');
+
+                            if (p1 === g1Simulado && p2 === g2Simulado) {
+                                p.pontos += 3;
+                                p.placaresFicticios += 1;
+                            } else if (sinalPalpite === sinalReal) {
+                                p.pontos += 1;
+                            }
+                        }
+                    }
+                });
+            });
+
+            tabelaFicticia.sort((a, b) => {
+                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+                if (b.placaresFicticios !== a.placaresFicticios) return b.placaresFicticios - a.placaresFicticios;
+                return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+            });
+
+            if (tabelaFicticia.length > 0) { vitoriasSimuladas[tabelaFicticia[0].nome]++; }
+        }
+
+        let relatorioChances = statsOrdenadasGlobais.map(p => {
+            let pct = (vitoriasSimuladas[p.nome] / RODADAS_SIMULACAO) * 100;
+            return { nome: p.nome, pontos: p.pontos, probabilidade: pct.toFixed(1) };
+        });
+
+        relatorioChances.sort((a, b) => b.probabilidade - a.probabilidade);
+
+        // ABRE O RELATÓRIO CONFIDENCIAL EXIBINDO OS PESOS DETECTADOS DA COPA
+        let novaAba = window.open('', '_blank');
+        
+        let linhasTabelaHtml = relatorioChances.map((p, i) => `
+            <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; text-align: center; width: 50px;">${i + 1}°</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1e293b;">${p.nome}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b; width: 100px;">${p.pontos} pts</td>
+                <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: center; width: 150px;">
+                    <span style="background-color: ${p.probabilidade > 50 ? '#d4edda' : (p.probabilidade > 10 ? '#fff3cd' : '#f8d7da')}; 
+                                 color: ${p.probabilidade > 50 ? '#155724' : (p.probabilidade > 10 ? '#856404' : '#721c24')}; 
+                                 padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 13px;">
+                        ${p.probabilidade}%
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+
+        novaAba.document.write(`
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <title>Relatório Secreto Inteligente - Copa 2026</title>
+                <style>
+                    body { font-family: -apple-system, sans-serif; background-color: #f1f5f9; padding: 30px; margin: 0; color: #334155; }
+                    .box { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+                    h1 { font-size: 20px; margin-top: 0; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; }
+                    .pesos-info { display: flex; gap: 10px; margin: 15px 0; font-size: 12px; font-weight: bold; justify-content: space-between; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;}
+                    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+                    .info { font-size: 12px; color: #94a3b8; margin-top: 15px; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <div class="box">
+                    <h1>🔮 Probabilidades Baseadas na Tendência Real da Copa</h1>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:10px;">
+                        Simulação rodada com base em <strong>2.000 Copas fictícias</strong>. O motor aprendeu os pesos abaixo examinando os <strong>${totalJogados} jogos já resolvidos</strong> por você na planilha:
+                    </p>
+                    <div class="pesos-info">
+                        <span style="color: #099078;">Vitória Time A: ${(pesoA * 100).toFixed(0)}%</span>
+                        <span style="color: #856404;">Empates: ${(pesoE * 100).toFixed(0)}%</span>
+                        <span style="color: #b81d1d;">Vitória Time B: ${(pesoB * 100).toFixed(0)}%</span>
+                    </div>
+                    <table>
+                        <tbody>
+                            ${linhasTabelaHtml}
+                        </tbody>
+                    </table>
+                    <div class="info">Documento confidencial do Administrador - Ajustado dinamicamente para os dados de 2026</div>
+                </div>
+            </body>
+            </html>
+        `);
+        novaAba.document.close();
+    });
 </script>
 
 </body>
