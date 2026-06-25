@@ -11,342 +11,61 @@
             --texto-escuro: #212529;
             --borda: #dee2e6;
             --cinza-intercalado: #f1f5f9; 
-            
-            /* Cores oficiais da legenda */
             --cor-placar: #099078;     
             --cor-resultado: #FFDF49;  
             --cor-bolamurcha: #FF3D0F; 
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-principal);
-            color: var(--texto-escuro);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-principal); color: var(--texto-escuro); margin: 0; padding: 20px; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         h1 { margin: 0 0 10px 0; color: #0f172a; font-size: 28px; }
         .atualizacao { color: #64748b; font-size: 14px; }
-
-        .ranking-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-        
-        .topo-ranking {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px; 
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--bg-principal);
-            padding-bottom: 15px;
-        }
-        
-        .bloco-titulo-legenda {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        .ranking-box { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .topo-ranking { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; border-bottom: 2px solid var(--bg-principal); padding-bottom: 15px; }
+        .bloco-titulo-legenda { display: flex; flex-direction: column; gap: 12px; }
         .topo-ranking h2 { margin: 0; color: var(--azul-copa); white-space: nowrap; cursor: pointer; user-select: none; }
-        
-        .legenda-container {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .item-legenda {
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        
+        .legenda-container { display: flex; gap: 10px; flex-wrap: wrap; }
+        .item-legenda { padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); }
         .legenda-placar { background-color: var(--cor-placar); color: #ffffff; }
         .legenda-resultado { background-color: var(--cor-resultado); color: #000000; }
         .legenda-bolamurcha { background-color: var(--cor-bolamurcha); color: #ffffff; }
-
-        .totais-gerais-box {
-            background-color: #f8fafc;
-            border: 1px solid var(--borda);
-            border-radius: 10px;
-            padding: 10px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .totais-gerais-titulo {
-            font-size: 12px;
-            font-weight: 800;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-        .totais-gerais-valores {
-            display: flex;
-            gap: 12px;
-        }
-        .total-badge {
-            font-size: 13px;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 5px;
-            display: flex;
-            gap: 6px;
-        }
-        .total-badge span {
-            background-color: rgba(255, 255, 255, 0.25);
-            padding: 0 6px;
-            border-radius: 4px;
-        }
+        .totais-gerais-box { background-color: #f8fafc; border: 1px solid var(--borda); border-radius: 10px; padding: 10px 18px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .totais-gerais-titulo { font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .totais-gerais-valores { display: flex; gap: 12px; }
+        .total-badge { font-size: 13px; font-weight: bold; padding: 4px 10px; border-radius: 5px; display: flex; gap: 6px; }
+        .total-badge span { background-color: rgba(255, 255, 255, 0.25); padding: 0 6px; border-radius: 4px; }
         .total-badge.p-g { background-color: var(--cor-placar); color: #fff; }
         .total-badge.r-g { background-color: var(--cor-resultado); color: #000; }
         .total-badge.r-g span { background-color: rgba(0, 0, 0, 0.08); }
         .total-badge.b-g { background-color: var(--cor-bolamurcha); color: #fff; }
-
-        .ranking-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-        }
-        .rank-card {
-            background: #f1f5f9;
-            padding: 12px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-        .rank-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        }
-        .rank-card .points {
-            background: var(--azul-copa);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .tabela-container {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto; 
-            position: relative;
-            margin-bottom: 35px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate; 
-            border-spacing: 0;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 10px 12px;
-            border-right: 1px solid var(--borda);
-            border-bottom: 1px solid var(--borda);
-            white-space: nowrap;
-        }
-
-        th {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .col-confronto {
-            min-width: 150px; 
-            max-width: 150px;
-            padding: 8px 12px;
-            position: sticky;
-            left: 0;
-            z-index: 5;
-            background-color: #fff; 
-            border-right: 2px solid #cbd5e1; 
-        }
-
-        th.col-confronto {
-            z-index: 15;
-            background-color: #0f172a;
-        }
-
-        .col-palpiteiro {
-            min-width: 85px;
-            max-width: 85px;
-            width: 85px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            cursor: help;
-        }
-
-        .linha-alinhada {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 22px;
-        }
-
-        .nome-time {
-            text-align: left;
-            font-weight: bold;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .gol-real {
-            background: #e2e8f0;
-            color: #0f172a;
-            border-radius: 4px;
-            padding: 1px 6px;
-            font-weight: bold;
-            font-size: 13px;
-            min-width: 10px;
-            text-align: center;
-        }
-
-        .gol-palpite {
-            background: rgba(0, 0, 0, 0.06);
-            color: #000;
-            border-radius: 4px;
-            padding: 1px 6px;
-            font-weight: bold;
-            font-size: 13px;
-            min-width: 10px;
-            text-align: center;
-        }
-
-        .espaco-jogo {
-            height: 6px;
-        }
-
-        tr:nth-child(even) td {
-            background-color: var(--cinza-intercalado);
-        }
-        tr:nth-child(even) .col-confronto {
-            background-color: var(--cinza-intercalado);
-        }
-
-        .grafico-box {
-            background-color: #d1e2d3; 
-            border: 2px solid #a3b8a6;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .grafico-box h2 {
-            margin-top: 0;
-            margin-bottom: 25px;
-            color: #1e293b;
-            font-size: 20px;
-            border-bottom: 2px solid #b1c7b4;
-            padding-bottom: 10px;
-        }
-
-        .container-linhas-grafico {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            position: relative;
-        }
-
-        .linha-grafico {
-            display: flex;
-            align-items: center;
-        }
-
-        .label-nome-grafico {
-            width: 120px;
-            text-align: right;
-            padding-right: 15px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #334155;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .area-barra-grafico {
-            flex-grow: 1;
-            background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%);
-            background-size: 10% 100%; 
-            position: relative;
-            padding: 2px 0;
-        }
-
-        .barra-3d {
-            height: 24px;
-            background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); 
-            border-top: 1px solid #7ea3b3;
-            border-left: 1px solid #7ea3b3;
-            border-bottom: 2px solid #1a2930;
-            border-right: 2px solid #1a2930;
-            position: relative;
-            box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); 
-            transition: width 0.8s ease-out;
-            width: 0%; 
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .valor-barra-3d {
-            color: #b81d1d;
-            font-family: "Impact", "Arial Black", sans-serif;
-            font-size: 20px;
-            font-weight: bold;
-            margin-right: -25px; 
-            text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; 
-            z-index: 2;
-        }
-
-        @media (max-width: 900px) {
-            .topo-ranking { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .totais-gerais-box { width: 100%; box-sizing: border-box; }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            th, td { padding: 6px 8px; font-size: 12px; }
-            .col-confronto { min-width: 140px; }
-            .label-nome-grafico { width: 90px; font-size: 12px; }
-        }
+        .ranking-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .rank-card { background: #f1f5f9; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: transform 0.2s; }
+        .rank-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .rank-card .points { background: var(--azul-copa); color: white; padding: 4px 10px; border-radius: 20px; font-size: 13px; }
+        .tabela-container { background: #fff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; position: relative; margin-bottom: 35px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; font-size: 14px; }
+        th, td { padding: 10px 12px; border-right: 1px solid var(--borda); border-bottom: 1px solid var(--borda); white-space: nowrap; }
+        th { background-color: #0f172a; color: #ffffff; font-weight: 600; position: sticky; top: 0; z-index: 10; }
+        .col-confronto { min-width: 150px; max-width: 150px; padding: 8px 12px; position: sticky; left: 0; z-index: 5; background-color: #fff; border-right: 2px solid #cbd5e1; }
+        th.col-confronto { z-index: 15; background-color: #0f172a; }
+        .col-palpiteiro { min-width: 85px; max-width: 85px; width: 85px; overflow: hidden; text-overflow: ellipsis; cursor: help; }
+        .linha-alinhada { display: flex; justify-content: space-between; align-items: center; height: 22px; }
+        .nome-time { text-align: left; font-weight: bold; overflow: hidden; text-overflow: ellipsis; }
+        .gol-real { background: #e2e8f0; color: #0f172a; border-radius: 4px; padding: 1px 6px; font-weight: bold; font-size: 13px; min-width: 10px; text-align: center; }
+        .gol-palpite { background: rgba(0, 0, 0, 0.06); color: #000; border-radius: 4px; padding: 1px 6px; font-weight: bold; font-size: 13px; min-width: 10px; text-align: center; }
+        .espaco-jogo { height: 6px; }
+        tr:nth-child(even) td { background-color: var(--cinza-intercalado); }
+        tr:nth-child(even) .col-confronto { background-color: var(--cinza-intercalado); }
+        .grafico-box { background-color: #d1e2d3; border: 2px solid #a3b8a6; border-radius: 12px; padding: 25px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05); }
+        .grafico-box h2 { margin-top: 0; margin-bottom: 25px; color: #1e293b; font-size: 20px; border-bottom: 2px solid #b1c7b4; padding-bottom: 10px; }
+        .container-linhas-grafico { display: flex; flex-direction: column; gap: 12px; position: relative; }
+        .linha-grafico { display: flex; align-items: center; }
+        .label-nome-grafico { width: 120px; text-align: right; padding-right: 15px; font-weight: bold; font-size: 14px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .area-barra-grafico { flex-grow: 1; background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%); background-size: 10% 100%; position: relative; padding: 2px 0; }
+        .barra-3d { height: 24px; background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); border-top: 1px solid #7ea3b3; border-left: 1px solid #7ea3b3; border-bottom: 2px solid #1a2930; border-right: 2px solid #1a2930; position: relative; box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); transition: width 0.8s ease-out; width: 0%; display: flex; align-items: center; justify-content: flex-end; }
+        .valor-barra-3d { color: #b81d1d; font-family: "Impact", sans-serif; font-size: 20px; font-weight: bold; margin-right: -25px; text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; z-index: 2; }
+        @media (max-width: 900px) { .topo-ranking { flex-direction: column; align-items: flex-start; gap: 15px; } .totais-gerais-box { width: 100%; box-sizing: border-box; } }
+        @media (max-width: 768px) { body { padding: 10px; } th, td { padding: 6px 8px; font-size: 12px; } .col-confronto { min-width: 140px; } .label-nome-grafico { width: 90px; font-size: 12px; } }
     </style>
 </head>
 <body>
@@ -367,7 +86,6 @@
                     <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
                 </div>
             </div>
-            
             <div class="totais-gerais-box">
                 <div class="totais-gerais-titulo">Acumulado Geral do Bolão</div>
                 <div class="totais-gerais-valores">
@@ -382,25 +100,20 @@
 
     <div class="tabela-container">
         <table id="tabela-bolao">
-            <thead>
-                <tr id="cabecalho-tabela">
-                    <th class="col-confronto">Confronto</th>
-                </tr>
-            </thead>
-            <tbody id="corpo-tabela">
-            </tbody>
+            <thead><tr id="cabecalho-tabela"><th class="col-confronto">Confronto</th></tr></thead>
+            <tbody id="corpo-tabela"></tbody>
         </table>
     </div>
 
     <div class="grafico-box">
         <h2>📈 Gráfico de Desempenho Atuais (Total de Pontos)</h2>
-        <div class="container-linhas-grafico" id="grafico-container">
-        </div>
+        <div class="container-linhas-grafico" id="grafico-container"></div>
     </div>
 </div>
 
 <script>
     let cacheDadosBolao = null;
+    let cachePesosManuais = {}; // Cache para o novo pesos.json
     let statsOrdenadasGlobais = [];
 
     function aplicarContrasteTexto(elemento, corHex) {
@@ -418,221 +131,179 @@
     }
 
     function identificarTipoAcerto(corHex) {
-        if (!corHex) return "nenhum";
-        let col = corHex.toLowerCase().trim();
+        if (!corHex) return "none";
+        let col = colHex = corHex.toLowerCase().trim();
         if (col === "#099078") return "placar";
         if (col === "#ffdf49") return "resultado";
         if (col === "#ff3d0f") return "bolamurcha";
-        return "nenhum";
+        return "none";
     }
 
-    fetch('dados.json?t=' + new Date().getTime()) 
-        .then(response => response.json())
-        .then(data => {
-            cacheDadosBolao = data;
-            document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
+    // CARREGAMENTO SIMULTÂNEO DOS DOIS ARQUIVOS JSON
+    Promise.all([
+        fetch('dados.json?t=' + new Date().getTime()).then(res => res.json()),
+        fetch('pesos.json?t=' + new Date().getTime()).then(res => res.json()).catch(() => ({})) // Se não existir pesos.json ainda, cria objeto vazio
+    ])
+    .then(([data, pesos]) => {
+        cacheDadosBolao = data;
+        cachePesosManuais = pesos; // Salva as probabilidades manuais no cache
+        
+        document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
-            let totalGlobalPlacares = 0;
-            let totalGlobalResultados = 0;
-            let totalGlobalBolaMurcha = 0;
+        let totalGlobalPlacares = 0; let totalGlobalResultados = 0; let totalGlobalBolaMurcha = 0;
 
-            let participantesStats = data.ranking.map(amigo => {
-                let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
-                
-                data.jogos.forEach(jogo => {
-                    let palpite = jogo.palpites[amigo.nome];
-                    if (palpite && palpite.placar !== "") {
-                        let tipo = identificarTipoAcerto(palpite.cor);
-                        if (tipo !== "nenhum") {
-                            contadores[tipo]++;
-                            if (tipo === "placar") totalGlobalPlacares++;
-                            if (tipo === "resultado") totalGlobalResultados++;
-                            if (tipo === "bolamurcha") totalGlobalBolaMurcha++;
-                        }
-                    }
-                });
-                
-                return { nome: amigo.nome, pontos: amigo.pontos, stats: contadores };
-            });
-
-            document.getElementById('global-placares').innerText = totalGlobalPlacares;
-            document.getElementById('global-resultados').innerText = totalGlobalResultados;
-            document.getElementById('global-bolamurcha').innerText = totalGlobalBolaMurcha;
-
-            participantesStats.sort((a, b) => {
-                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-                if (b.stats.placar !== a.stats.placar) return b.stats.placar - a.stats.placar;
-                return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
-            });
-            
-            statsOrdenadasGlobais = participantesStats;
-
-            renderizarRankingGrid();
-
-            const cabecalho = document.getElementById('cabecalho-tabela');
-            participantesStats.forEach(amigo => {
-                const th = document.createElement('th');
-                th.className = 'col-palpiteiro';
-                th.innerText = amigo.nome;
-                cabecalho.appendChild(th);
-            });
-
-            const corpoTabela = document.getElementById('corpo-tabela');
+        let participantesStats = data.ranking.map(amigo => {
+            let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
             data.jogos.forEach(jogo => {
-                const tr = document.createElement('tr');
-                let gol1 = "-"; let gol2 = "-";
-                if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
-                    const partes = jogo.resultadoReal.split("x");
-                    if (partes.length === 2) { gol1 = partes[0].trim(); gol2 = partes[1].trim(); }
-                }
-                
-                const tdConfronto = document.createElement('td');
-                tdConfronto.className = 'col-confronto';
-                tdConfronto.innerHTML = `
-                    <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${gol1}</span></div>
-                    <div class="espaco-jogo"></div>
-                    <div class="linha-alinhada"><span class="nome-time">${jogo.time2}</span><span class="gol-real">${gol2}</span></div>
-                `;
-                tr.appendChild(tdConfronto);
-
-                participantesStats.forEach(amigo => {
-                    const tdPalpite = document.createElement('td');
-                    tdPalpite.className = 'col-palpiteiro';
-                    const dadosPalpite = jogo.palpites[amigo.nome];
-                    if (dadosPalpite && dadosPalpite.placar !== "") {
-                        const partesPalpite = dadosPalpite.placar.split("x");
-                        if (partesPalpite.length === 2) {
-                            tdPalpite.innerHTML = `
-                                <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[0].trim()}</span></div>
-                                <div class="espaco-jogo"></div>
-                                <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[1].trim()}</span></div>
-                            `;
-                        } else { tdPalpite.innerText = "-"; }
-                        if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
-                    } else {
-                        tdPalpite.innerHTML = `
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
-                            <div class="espaco-jogo"></div>
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
-                        `;
+                let palpite = jogo.palpites[amigo.nome];
+                if (palpite && palpite.placar !== "") {
+                    let tipo = identificarTipoAcerto(palpite.cor);
+                    if (tipo !== "none") {
+                        contadores[tipo]++;
+                        if (tipo === "placar") totalGlobalPlacares++;
+                        if (tipo === "resultado") totalGlobalResultados++;
+                        if (tipo === "bolamurcha") totalGlobalBolaMurcha++;
                     }
-                    tr.appendChild(tdPalpite);
-                });
-                corpoTabela.appendChild(tr);
+                }
             });
+            return { nome: amigo.nome, pontos: amigo.pontos, stats: contadores };
+        });
 
-            const graficoContainer = document.getElementById('grafico-container');
-            let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
+        document.getElementById('global-placares').innerText = totalGlobalPlacares;
+        document.getElementById('global-resultados').innerText = totalGlobalResultados;
+        document.getElementById('global-bolamurcha').innerText = totalGlobalBolaMurcha;
+
+        participantesStats.sort((a, b) => {
+            if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+            if (b.stats.placar !== a.stats.placar) return b.stats.placar - a.stats.placar;
+            return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+        });
+        
+        statsOrdenadasGlobais = participantesStats;
+        renderizarRankingGrid();
+
+        const cabecalho = document.getElementById('cabecalho-tabela');
+        participantesStats.forEach(amigo => {
+            const th = document.createElement('th'); th.className = 'col-palpiteiro'; th.innerText = amigo.nome; cabecalho.appendChild(th);
+        });
+
+        const corpoTabela = document.getElementById('corpo-tabela');
+        data.jogos.forEach(jogo => {
+            const tr = document.createElement('tr');
+            let gol1 = "-"; let gol2 = "-";
+            if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
+                const partes = jogo.resultadoReal.split("x");
+                if (partes.length === 2) { gol1 = partes[0].trim(); gol2 = partes[1].trim(); }
+            }
+            
+            const tdConfronto = document.createElement('td');
+            tdConfronto.className = 'col-confronto';
+            tdConfronto.innerHTML = `
+                <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${gol1}</span></div>
+                <div class="espaco-jogo"></div>
+                <div class="linha-alinhada"><span class="nome-time">${jogo.time2}</span><span class="gol-real">${gol2}</span></div>
+            `;
+            tr.appendChild(tdConfronto);
 
             participantesStats.forEach(amigo => {
-                const linha = document.createElement('div');
-                linha.className = 'linha-grafico';
-                let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; 
-                if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
-
-                linha.innerHTML = `
-                    <div class="label-nome-grafico" title="${amigo.nome}">${amigo.nome}</div>
-                    <div class="area-barra-grafico">
-                        <div class="barra-3d" style="width: ${pctLargura}%;">
-                            <span class="valor-barra-3d">${amigo.pontos}</span>
-                        </div>
-                    </div>
-                `;
-                graficoContainer.appendChild(linha);
+                const tdPalpite = document.createElement('td'); tdPalpite.className = 'col-palpiteiro';
+                const dadosPalpite = jogo.palpites[amigo.nome];
+                if (dadosPalpite && dadosPalpite.placar !== "") {
+                    const partesPalpite = dadosPalpite.placar.split("x");
+                    if (partesPalpite.length === 2) {
+                        tdPalpite.innerHTML = `
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[0].trim()}</span></div>
+                            <div class="espaco-jogo"></div>
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[1].trim()}</span></div>
+                        `;
+                    } else { tdPalpite.innerText = "-"; }
+                    if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
+                } else {
+                    tdPalpite.innerHTML = `
+                        <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                        <div class="espaco-jogo"></div>
+                        <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
+                    `;
+                }
+                tr.appendChild(tdPalpite);
             });
-        })
-        .catch(error => { console.error(error); });
+            corpoTabela.appendChild(tr);
+        });
+
+        const graficoContainer = document.getElementById('grafico-container');
+        let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
+        participantesStats.forEach(amigo => {
+            const linha = document.createElement('div'); linha.className = 'linha-grafico';
+            let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
+            linha.innerHTML = `
+                <div class="label-nome-grafico" title="${amigo.nome}">${amigo.nome}</div>
+                <div class="area-barra-grafico"><div class="barra-3d" style="width: ${pctLargura}%;"><span class="valor-barra-3d">${amigo.pontos}</span></div></div>
+            `;
+            graficoContainer.appendChild(linha);
+        });
+    }).catch(error => { console.error(error); });
 
     function renderizarRankingGrid() {
         const rankingContainer = document.getElementById('ranking-container');
-        rankingContainer.innerHTML = "";
-        let posicaoAtual = 1;
-
+        rankingContainer.innerHTML = ""; let posicaoAtual = 1;
         statsOrdenadasGlobais.forEach((pos, index) => {
             if (index > 0) {
                 let anterior = statsOrdenadasGlobais[index - 1];
-                if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) {
-                    posicaoAtual = index + 1; 
-                }
+                if (pos.pontos !== anterior.pontos || pos.stats.placar !== anterior.stats.placar) { posicaoAtual = index + 1; }
             }
             let strTooltip = `Placares: ${pos.stats.placar} | Resultados: ${pos.stats.resultado} | Bola Murcha: ${pos.stats.bolamurcha}`;
-            const card = document.createElement('div');
-            card.className = 'rank-card';
-            card.title = strTooltip;
-            card.innerHTML = `
-                <span>${posicaoAtual}° ${pos.nome}</span> 
-                <span class="points"><span>${pos.pontos} pts</span></span>`;
+            const card = document.createElement('div'); card.className = 'rank-card'; card.title = strTooltip;
+            card.innerHTML = `<span>${posicaoAtual}° ${pos.nome}</span> <span class="points"><span>${pos.pontos} pts</span></span>`;
             rankingContainer.appendChild(card);
         });
     }
 
-    // ==========================================================
-    // SIMULADOR DE MONTE CARLO - ADAPTATIVO POR DADOS REAIS DA COPA
-    // ==========================================================
+    // SIMULADOR COM INTEGRAÇÃO DE ARQUIVO TEXTO EXTERNO (PESOS.JSON)
     document.getElementById('titulo-ranking-clique').addEventListener('dblclick', () => {
         if (!cacheDadosBolao) return;
         
-        // 1. Separa os jogos que já aconteceram e os que faltam acontecer
         let jogosRealizados = cacheDadosBolao.jogos.filter(j => j.resultadoReal && j.resultadoReal !== "A jogar");
         let jogosPendentes = cacheDadosBolao.jogos.filter(j => !j.resultadoReal || j.resultadoReal === "A jogar");
         
-        if (jogosPendentes.length === 0) {
-            alert("Todos os jogos já terminaram!");
-            return;
-        }
+        if (jogosPendentes.length === 0) { alert("Todos os jogos já terminaram!"); return; }
 
-        // 2. MÁGICA: Calcula a tendência estatística empírica da Copa 2026 até agora
         let vTimeA = 0; let empates = 0; let vTimeB = 0;
-        
         jogosRealizados.forEach(j => {
             let partes = j.resultadoReal.split("x");
             if (partes.length === 2) {
-                let g1 = parseInt(partes[0].trim());
-                let g2 = parseInt(partes[1].trim());
-                if (g1 > g2) vTimeA++;
-                else if (g1 === g2) empates++;
-                else vTimeB++;
+                let g1 = parseInt(partes[0].trim()); let g2 = parseInt(partes[1].trim());
+                if (g1 > g2) vTimeA++; else if (g1 === g2) empates++; else vTimeB++;
             }
         });
-
-        // Configuração de pesos padrão (Histórica) caso tenham poucas partidas realizadas no início
-        let pesoA = 0.45; let pesoE = 0.30; let pesoB = 0.25;
         let totalJogados = jogosRealizados.length;
+        let pesoA_Copa = totalJogados >= 10 ? vTimeA / totalJogados : 0.45;
+        let pesoE_Copa = totalJogados >= 10 ? empates / totalJogados : 0.30;
+        let pesoB_Copa = totalJogados >= 10 ? vTimeB / totalJogados : 0.25;
 
-        // Se já tivermos uma amostragem decente (10 ou mais jogos), mudamos para os pesos REAIS da Copa de 2026
-        if (totalJogados >= 10) {
-            pesoA = vTimeA / totalJogados;
-            pesoE = empates / totalJogados;
-            pesoB = vTimeB / totalJogados;
-        }
-
-        // Dicionário de vitórias simuladas
         let vitoriasSimuladas = {};
         statsOrdenadasGlobais.forEach(p => vitoriasSimuladas[p.nome] = 0);
 
         const RODADAS_SIMULACAO = 2000;
 
         for (let r = 0; r < RODADAS_SIMULACAO; r++) {
-            let tabelaFicticia = statsOrdenadasGlobais.map(p => ({
-                nome: p.nome,
-                pontos: p.pontos,
-                placaresFicticios: p.stats.placar
-            }));
+            let tabelaFicticia = statsOrdenadasGlobais.map(p => ({ nome: p.nome, pontos: p.pontos, placaresFicticios: p.stats.placar }));
 
             jogosPendentes.forEach(jogo => {
                 let rng = Math.random();
                 let g1Simulado = 0; let g2Simulado = 0;
 
-                // Sorteia o desfecho respeitando a tendência empírica da Copa calculada dinamicamente
-                if (rng < pesoA) {
-                    g1Simulado = Math.floor(Math.random() * 3) + 1;
-                    g2Simulado = Math.floor(Math.random() * g1Simulado);
-                } else if (rng < (pesoA + pesoE)) {
-                    g1Simulado = Math.floor(Math.random() * 3);
-                    g2Simulado = g1Simulado;
+                // CRITÉRIO DE FORÇA INDIVIDUAL: Busca no arquivo pesos.json usando o Time 1 como chave
+                let configuracaoManual = cachePesosManuais[jogo.time1];
+                
+                let pA = configuracaoManual ? configuracaoManual.a : pesoA_Copa;
+                let pE = configuracaoManual ? configuracaoManual.e : pesoE_Copa;
+
+                if (rng < pA) {
+                    g1Simulado = Math.floor(Math.random() * 3) + 1; g2Simulado = Math.floor(Math.random() * g1Simulado);
+                } else if (rng < (pA + pE)) {
+                    g1Simulado = Math.floor(Math.random() * 3); g2Simulado = g1Simulado;
                 } else {
-                    g2Simulado = Math.floor(Math.random() * 3) + 1;
-                    g1Simulado = Math.floor(Math.random() * g2Simulado);
+                    g2Simulado = Math.floor(Math.random() * 3) + 1; g1Simulado = Math.floor(Math.random() * g2Simulado);
                 }
 
                 let sinalReal = g1Simulado > g2Simulado ? 'M' : (g1Simulado < g2Simulado ? 'V' : 'E');
@@ -642,16 +313,10 @@
                     if (palpite && palpite.placar !== "") {
                         let partes = palpite.placar.split("x");
                         if (partes.length === 2) {
-                            let p1 = parseInt(partes[0].trim());
-                            let p2 = parseInt(partes[1].trim());
+                            let p1 = parseInt(partes[0].trim()); let p2 = parseInt(partes[1].trim());
                             let sinalPalpite = p1 > p2 ? 'M' : (p1 < p2 ? 'V' : 'E');
-
-                            if (p1 === g1Simulado && p2 === g2Simulado) {
-                                p.pontos += 3;
-                                p.placaresFicticios += 1;
-                            } else if (sinalPalpite === sinalReal) {
-                                p.pontos += 1;
-                            }
+                            if (p1 === g1Simulado && p2 === g2Simulado) { p.pontos += 3; p.placaresFicticios += 1; }
+                            else if (sinalPalpite === sinalReal) { p.pontos += 1; }
                         }
                     }
                 });
@@ -662,7 +327,6 @@
                 if (b.placaresFicticios !== a.placaresFicticios) return b.placaresFicticios - a.placaresFicticios;
                 return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
             });
-
             if (tabelaFicticia.length > 0) { vitoriasSimuladas[tabelaFicticia[0].nome]++; }
         }
 
@@ -670,23 +334,16 @@
             let pct = (vitoriasSimuladas[p.nome] / RODADAS_SIMULACAO) * 100;
             return { nome: p.nome, pontos: p.pontos, probabilidade: pct.toFixed(1) };
         });
-
         relatorioChances.sort((a, b) => b.probabilidade - a.probabilidade);
 
-        // ABRE O RELATÓRIO CONFIDENCIAL EXIBINDO OS PESOS DETECTADOS DA COPA
         let novaAba = window.open('', '_blank');
-        
         let linhasTabelaHtml = relatorioChances.map((p, i) => `
             <tr style="background-color: ${i % 2 === 0 ? '#ffffff' : '#f8fafc'};">
                 <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; text-align: center; width: 50px;">${i + 1}°</td>
                 <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1e293b;">${p.nome}</td>
                 <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b; width: 100px;">${p.pontos} pts</td>
                 <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: center; width: 150px;">
-                    <span style="background-color: ${p.probabilidade > 50 ? '#d4edda' : (p.probabilidade > 10 ? '#fff3cd' : '#f8d7da')}; 
-                                 color: ${p.probabilidade > 50 ? '#155724' : (p.probabilidade > 10 ? '#856404' : '#721c24')}; 
-                                 padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 13px;">
-                        ${p.probabilidade}%
-                    </span>
+                    <span style="background-color: ${p.probabilidade > 50 ? '#d4edda' : (p.probabilidade > 10 ? '#fff3cd' : '#f8d7da')}; color: ${p.probabilidade > 50 ? '#155724' : (p.probabilidade > 10 ? '#856404' : '#721c24')}; padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 13px;">${p.probabilidade}%</span>
                 </td>
             </tr>
         `).join('');
@@ -694,35 +351,13 @@
         novaAba.document.write(`
             <!DOCTYPE html>
             <html lang="pt-BR">
-            <head>
-                <meta charset="UTF-8">
-                <title>Relatório Secreto Inteligente - Copa 2026</title>
-                <style>
-                    body { font-family: -apple-system, sans-serif; background-color: #f1f5f9; padding: 30px; margin: 0; color: #334155; }
-                    .box { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-                    h1 { font-size: 20px; margin-top: 0; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; }
-                    .pesos-info { display: flex; gap: 10px; margin: 15px 0; font-size: 12px; font-weight: bold; justify-content: space-between; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;}
-                    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-                    .info { font-size: 12px; color: #94a3b8; margin-top: 15px; text-align: center; }
-                </style>
-            </head>
+            <head><meta charset="UTF-8"><title>Relatório de Probabilidades por Força Real</title><style>body { font-family: -apple-system, sans-serif; background-color: #f1f5f9; padding: 30px; margin: 0; color: #334155; } .box { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); } h1 { font-size: 20px; margin-top: 0; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; } table { width: 100%; border-collapse: collapse; font-size: 14px; } .info { font-size: 12px; color: #94a3b8; margin-top: 15px; text-align: center; }</style></head>
             <body>
                 <div class="box">
-                    <h1>🔮 Probabilidades Baseadas na Tendência Real da Copa</h1>
-                    <p style="font-size:13px; color:#64748b; margin-bottom:10px;">
-                        Simulação rodada com base em <strong>2.000 Copas fictícias</strong>. O motor aprendeu os pesos abaixo examinando os <strong>${totalJogados} jogos já resolvidos</strong> por você na planilha:
-                    </p>
-                    <div class="pesos-info">
-                        <span style="color: #099078;">Vitória Time A: ${(pesoA * 100).toFixed(0)}%</span>
-                        <span style="color: #856404;">Empates: ${(pesoE * 100).toFixed(0)}%</span>
-                        <span style="color: #b81d1d;">Vitória Time B: ${(pesoB * 100).toFixed(0)}%</span>
-                    </div>
-                    <table>
-                        <tbody>
-                            ${linhasTabelaHtml}
-                        </tbody>
-                    </table>
-                    <div class="info">Documento confidencial do Administrador - Ajustado dinamicamente para os dados de 2026</div>
+                    <h1>🔮 Probabilidades Ponderadas por Confronto Direto</h1>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Relatório confidencial do Administrador. As forças foram calibradas mapeando as chaves do arquivo externo <strong>pesos.json</strong>.</p>
+                    <table><tbody>${linhasTabelaHtml}</tbody></table>
+                    <div class="info">Análise de Dados Oculta - Modelo Avançado Monte Carlo.</div>
                 </div>
             </body>
             </html>
@@ -730,6 +365,5 @@
         novaAba.document.close();
     });
 </script>
-
 </body>
 </html>
