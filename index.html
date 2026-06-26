@@ -11,6 +11,8 @@
             --texto-escuro: #212529;
             --borda: #dee2e6;
             --cinza-intercalado: #f1f5f9; 
+            
+            /* Cores vibrantes oficiais do seu bolão */
             --cor-placar: #099078;     
             --cor-resultado: #FFDF49;  
             --cor-bolamurcha: #FF3D0F; 
@@ -72,20 +74,21 @@
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO DA COPA DO MUNDO 2026 ⚽</h1>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 </h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
     <div class="ranking-box">
         <div class="topo-ranking">
             <div class="bloco-titulo-legenda">
-                <h2 id="titulo-ranking-clique">📊 Classificação Geral</h2>
+                <h2 id="titulo-ranking-clique"> Classificação Geral</h2>
                 <div class="legenda-container">
                     <div class="item-legenda legenda-placar">Placar: 3</div>
                     <div class="item-legenda legenda-resultado">Resultado: 1</div>
                     <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
                 </div>
             </div>
+            
             <div class="totais-gerais-box">
                 <div class="totais-gerais-titulo">Acumulado Geral do Bolão</div>
                 <div class="totais-gerais-valores">
@@ -106,63 +109,69 @@
     </div>
 
     <div class="grafico-box">
-        <h2>📈 Gráfico de Desempenho Atuais (Total de Pontos)</h2>
+        <h2> Gráfico de Desempenho Atuais (Total de Pontos)</h2>
         <div class="container-linhas-grafico" id="grafico-container"></div>
     </div>
 </div>
 
 <script>
     let cacheDadosBolao = null;
-    let cachePesosManuais = {}; // Cache para o novo pesos.json
+    let cachePesosManuais = {};
     let statsOrdenadasGlobais = [];
 
-    function aplicarContrasteTexto(elemento, corHex) {
-        if (!corHex || corHex === "#ffffff") return "claro";
-        elemento.style.backgroundColor = corHex;
-        let hex = corHex.replace('#', '');
-        if (hex.length === 3) hex = hex.replace(/(.)/g, '$1$1');
-        let r = parseInt(hex.substr(0, 2), 16);
-        let g = parseInt(hex.substr(2, 2), 16);
-        let b = parseInt(hex.substr(4, 2), 16);
-        if (isNaN(r) || isNaN(g) || isNaN(b)) { elemento.style.color = "#000000"; return "claro"; }
-        let yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        elemento.style.color = (yiq < 128) ? "#ffffff" : "#000000";
-        return (yiq < 128) ? "escuro" : "claro";
+    // MUDANÇA: O próprio index.html calcula o tipo de acerto baseado nos gols reais e palpites
+    function descobrirEstiloAcerto(real1, real2, p1, p2) {
+        if (real1 === "-" || real2 === "-" || p1 === "" || p2 === "" || p1 === undefined || p2 === undefined) {
+            return { corBg: "", corTexto: "#000000", tipo: "none" };
+        }
+        
+        let r1 = Number(real1); let r2 = Number(real2);
+        let pal1 = Number(p1); let pal2 = Number(p2);
+
+        if (r1 === pal1 && r2 === pal2) {
+            return { corBg: "var(--cor-placar)", corTexto: "#ffffff", tipo: "placar" };
+        } else if (Math.sign(r1 - r2) === Math.sign(pal1 - pal2)) {
+            return { corBg: "var(--cor-resultado)", corTexto: "#000000", tipo: "resultado" };
+        } else {
+            return { corBg: "var(--cor-bolamurcha)", corTexto: "#ffffff", tipo: "bolamurcha" };
+        }
     }
 
-    function identificarTipoAcerto(corHex) {
-        if (!corHex) return "none";
-        let col = colHex = corHex.toLowerCase().trim();
-        if (col === "#099078") return "placar";
-        if (col === "#ffdf49") return "resultado";
-        if (col === "#ff3d0f") return "bolamurcha";
-        return "none";
-    }
-
-    // CARREGAMENTO SIMULTÂNEO DOS DOIS ARQUIVOS JSON
     Promise.all([
         fetch('dados.json?t=' + new Date().getTime()).then(res => res.json()),
-        fetch('pesos.json?t=' + new Date().getTime()).then(res => res.json()).catch(() => ({})) // Se não existir pesos.json ainda, cria objeto vazio
+        fetch('pesos.json?t=' + new Date().getTime()).then(res => res.json()).catch(() => ({}))
     ])
     .then(([data, pesos]) => {
         cacheDadosBolao = data;
-        cachePesosManuais = pesos; // Salva as probabilidades manuais no cache
+        cachePesosManuais = pesos;
         
         document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
         let totalGlobalPlacares = 0; let totalGlobalResultados = 0; let totalGlobalBolaMurcha = 0;
 
+        // 1. PROCESSAMENTO DE ESTATÍSTICAS BASEADO NO CÁLCULO DINÂMICO LOCAL
         let participantesStats = data.ranking.map(amigo => {
             let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
+            
             data.jogos.forEach(jogo => {
                 let palpite = jogo.palpites[amigo.nome];
+                
+                let real1 = "-"; let real2 = "-";
+                if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
+                    let partes = jogo.resultadoReal.split("x");
+                    if (partes.length === 2) { real1 = partes[0].trim(); real2 = partes[1].trim(); }
+                }
+
                 if (palpite && palpite.placar !== "") {
-                    let tipo = identificarTipoAcerto(palpite.cor);
-                    if (tipo !== "none") {
-                        contadores[tipo]++;
-                        if (tipo === "placar") totalGlobalPlacares++;
-                        if (tipo === "resultado") totalGlobalResultados++;
-                        if (tipo === "bolamurcha") totalGlobalBolaMurcha++;
+                    let partesPalpite = palpite.placar.split("x");
+                    if (partesPalpite.length === 2) {
+                        let estilo = descobrirEstiloAcerto(real1, real2, partesPalpite[0].trim(), partesPalpite[1].trim());
+                        if (estilo.tipo !== "none") {
+                            contadores[estilo.tipo]++;
+                            if (estilo.tipo === "placar") totalGlobalPlacares++;
+                            if (estilo.tipo === "resultado") totalGlobalResultados++;
+                            if (estilo.tipo === "bolamurcha") totalGlobalBolaMurcha++;
+                        }
                     }
                 }
             });
@@ -187,37 +196,49 @@
             const th = document.createElement('th'); th.className = 'col-palpiteiro'; th.innerText = amigo.nome; cabecalho.appendChild(th);
         });
 
+        // 2. MONTAGEM DA MATRIZ APLICANDO OS ESTILOS AUTOMÁTICOS
         const corpoTabela = document.getElementById('corpo-tabela');
         data.jogos.forEach(jogo => {
             const tr = document.createElement('tr');
-            let gol1 = "-"; let gol2 = "-";
+            let real1 = "-"; let real2 = "-";
             if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
                 const partes = jogo.resultadoReal.split("x");
-                if (partes.length === 2) { gol1 = partes[0].trim(); gol2 = partes[1].trim(); }
+                if (partes.length === 2) { real1 = partes[0].trim(); real2 = partes[1].trim(); }
             }
             
             const tdConfronto = document.createElement('td');
             tdConfronto.className = 'col-confronto';
             tdConfronto.innerHTML = `
-                <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${gol1}</span></div>
+                <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${real1}</span></div>
                 <div class="espaco-jogo"></div>
-                <div class="linha-alinhada"><span class="nome-time">${jogo.time2}</span><span class="gol-real">${gol2}</span></div>
+                <div class="linha-alinhada"><span class="nome-time">${jogo.time2}</span><span class="gol-real">${real2}</span></div>
             `;
             tr.appendChild(tdConfronto);
 
             participantesStats.forEach(amigo => {
                 const tdPalpite = document.createElement('td'); tdPalpite.className = 'col-palpiteiro';
+                tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
+                
                 const dadosPalpite = jogo.palpites[amigo.nome];
                 if (dadosPalpite && dadosPalpite.placar !== "") {
                     const partesPalpite = dadosPalpite.placar.split("x");
                     if (partesPalpite.length === 2) {
+                        let p1 = partesPalpite[0].trim();
+                        let p2 = partesPalpite[1].trim();
+                        
                         tdPalpite.innerHTML = `
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[0].trim()}</span></div>
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p1}</span></div>
                             <div class="espaco-jogo"></div>
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${partesPalpite[1].trim()}</span></div>
+                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p2}</span></div>
                         `;
+                        
+                        // CALCULA E CLASSIFICA A COR EM TEMPO REAL NO NAVEGADOR
+                        let estilo = descobrirEstiloAcerto(real1, real2, p1, p2);
+                        if (estilo.corBg !== "") {
+                            tdPalpite.style.backgroundColor = estilo.corBg;
+                            tdPalpite.style.color = estilo.corTexto;
+                        }
                     } else { tdPalpite.innerText = "-"; }
-                    if (dadosPalpite.cor && dadosPalpite.cor !== "#ffffff") aplicarContrasteTexto(tdPalpite, dadosPalpite.cor);
                 } else {
                     tdPalpite.innerHTML = `
                         <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
@@ -258,7 +279,7 @@
         });
     }
 
-    // SIMULADOR COM INTEGRAÇÃO DE ARQUIVO TEXTO EXTERNO (PESOS.JSON)
+    // SIMULADOR DE MONTE CARLO (MANTIDO E ADAPTADO)
     document.getElementById('titulo-ranking-clique').addEventListener('dblclick', () => {
         if (!cacheDadosBolao) return;
         
@@ -283,7 +304,7 @@
         let vitoriasSimuladas = {};
         statsOrdenadasGlobais.forEach(p => vitoriasSimuladas[p.nome] = 0);
 
-        const RODADAS_SIMULACAO = 10000;
+        const RODADAS_SIMULACAO = 2000;
 
         for (let r = 0; r < RODADAS_SIMULACAO; r++) {
             let tabelaFicticia = statsOrdenadasGlobais.map(p => ({ nome: p.nome, pontos: p.pontos, placaresFicticios: p.stats.placar }));
@@ -292,9 +313,7 @@
                 let rng = Math.random();
                 let g1Simulado = 0; let g2Simulado = 0;
 
-                // CRITÉRIO DE FORÇA INDIVIDUAL: Busca no arquivo pesos.json usando o Time 1 como chave
                 let configuracaoManual = cachePesosManuais[jogo.time1];
-                
                 let pA = configuracaoManual ? configuracaoManual.a : pesoA_Copa;
                 let pE = configuracaoManual ? configuracaoManual.e : pesoE_Copa;
 
@@ -357,7 +376,7 @@
                     <h1>🔮 Probabilidades Ponderadas por Confronto Direto</h1>
                     <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Relatório confidencial do Administrador. As forças foram calibradas mapeando as chaves do arquivo externo <strong>pesos.json</strong>.</p>
                     <table><tbody>${linhasTabelaHtml}</tbody></table>
-                    <div class="info">Análise de Dados Oculta - Modelo Avançado Monte Carlo - 10k run.</div>
+                    <div class="info">Análise de Dados Oculta - Modelo Avançado Monte Carlo.</div>
                 </div>
             </body>
             </html>
