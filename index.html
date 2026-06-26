@@ -304,7 +304,7 @@
         let vitoriasSimuladas = {};
         statsOrdenadasGlobais.forEach(p => vitoriasSimuladas[p.nome] = 0);
 
-        const RODADAS_SIMULACAO = 2000;
+        const RODADAS_SIMULACAO = 20000;
 
         for (let r = 0; r < RODADAS_SIMULACAO; r++) {
             let tabelaFicticia = statsOrdenadasGlobais.map(p => ({ nome: p.nome, pontos: p.pontos, placaresFicticios: p.stats.placar }));
