@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Oficial - Bolão Copa 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-principal: #f8f9fa;
@@ -11,8 +12,6 @@
             --texto-escuro: #212529;
             --borda: #dee2e6;
             --cinza-intercalado: #f1f5f9; 
-            
-            /* Cores vibrantes oficiais do seu bolão */
             --cor-placar: #099078;     
             --cor-resultado: #FFDF49;  
             --cor-bolamurcha: #FF3D0F; 
@@ -58,37 +57,85 @@
         .espaco-jogo { height: 6px; }
         tr:nth-child(even) td { background-color: var(--cinza-intercalado); }
         tr:nth-child(even) .col-confronto { background-color: var(--cinza-intercalado); }
-        .grafico-box { background-color: #d1e2d3; border: 2px solid #a3b8a6; border-radius: 12px; padding: 25px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05); }
+        .grafico-box { background-color: #d1e2d3; border: 2px solid #a3b8a6; border-radius: 12px; padding: 25px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 35px; }
         .grafico-box h2 { margin-top: 0; margin-bottom: 25px; color: #1e293b; font-size: 20px; border-bottom: 2px solid #b1c7b4; padding-bottom: 10px; }
         .container-linhas-grafico { display: flex; flex-direction: column; gap: 12px; position: relative; }
         .linha-grafico { display: flex; align-items: center; }
         .label-nome-grafico { width: 120px; text-align: right; padding-right: 15px; font-weight: bold; font-size: 14px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .area-barra-grafico { flex-grow: 1; background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%); background-size: 10% 100%; position: relative; padding: 2px 0; }
-        .barra-3d { height: 24px; background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); border-top: 1px solid #7ea3b3; border-left: 1px solid #7ea3b3; border-bottom: 2px solid #1a2930; border-right: 2px solid #1a2930; position: relative; box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); transition: width 0.8s ease-out; width: 0%; display: flex; align-items: center; justify-content: flex-end; }
-        .valor-barra-3d { color: #b81d1d; font-family: "Impact", sans-serif; font-size: 20px; font-weight: bold; margin-right: -25px; text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; z-index: 2; }
+        .barra-3d { height: 24px; background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); border-top: 1px solid #7ea3b3; border-left: 1px solid #7ea3b3; border-bottom: 2px solid #1a2930; border-right: 2px solid #1a2930; position: relative; box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); width: 0%; transition: width 2.5s cubic-bezier(0.25, 1, 0.5, 1); display: flex; align-items: center; justify-content: flex-end; }
+        .valor-barra-3d { color: #b81d1d; font-family: "Impact", sans-serif; font-size: 20px; font-weight: bold; margin-right: -25px; text-shadow: 2px 2px 0px #1a2930, -1px -1px 0px #fff; z-index: 2; opacity: 0; transition: opacity 1.5s ease-in-out; }
+
+        /* ==========================================================
+           NOVO ESTILO: LETREIRO MAJESTOSO DO CAMPEÃO (ESTILO TAÇA CAFU)
+           ========================================================== */
+        .container-campeao-podio {
+            display: none; /* Inicia oculto e surge após o estouro */
+            text-align: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 4px solid #e2b842; /* Borda dourada metálica */
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 0 30px rgba(226, 184, 66, 0.2);
+            animation: surgirLetreiro 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .letreiro-titulo {
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin: 0 0 10px 0;
+        }
+
+        .letreiro-nome {
+            font-family: "Impact", "Arial Black", sans-serif;
+            font-size: 42px;
+            letter-spacing: 2px;
+            background: linear-gradient(to bottom, #ffe066 0%, #f5b041 40%, #e2b842 60%, #9a7d1c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.8);
+            margin: 0;
+            display: inline-block;
+            animation: pulsarBrilho 2s infinite ease-in-out;
+        }
+
+        @keyframes surgirLetreiro {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulsarBrilho {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(226,184,66,0.4)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 20px rgba(226,184,66,0.8)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(226,184,66,0.4)); }
+        }
+
         @media (max-width: 900px) { .topo-ranking { flex-direction: column; align-items: flex-start; gap: 15px; } .totais-gerais-box { width: 100%; box-sizing: border-box; } }
-        @media (max-width: 768px) { body { padding: 10px; } th, td { padding: 6px 8px; font-size: 12px; } .col-confronto { min-width: 140px; } .label-nome-grafico { width: 90px; font-size: 12px; } }
+        @media (max-width: 768px) { body { padding: 10px; th, td { padding: 6px 8px; font-size: 12px; } .col-confronto { min-width: 140px; } .label-nome-grafico { width: 90px; font-size: 12px; } .letreiro-nome { font-size: 32px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>🏆 BOLÃO COPA DO MUNDO 2026 </h1>
+        <h1>🏆 BOLÃO COPA DO MUNDO 2026 ⚽</h1>
         <div class="atualizacao" id="data-atualizacao">Carregando dados...</div>
     </header>
 
     <div class="ranking-box">
         <div class="topo-ranking">
             <div class="bloco-titulo-legenda">
-                <h2 id="titulo-ranking-clique"> Classificação Geral</h2>
+                <h2 id="titulo-ranking-clique">📊 Classificação Geral</h2>
                 <div class="legenda-container">
                     <div class="item-legenda legenda-placar">Placar: 3</div>
                     <div class="item-legenda legenda-resultado">Resultado: 1</div>
                     <div class="item-legenda legenda-bolamurcha">Bola Murcha: 0</div>
                 </div>
             </div>
-            
             <div class="totais-gerais-box">
                 <div class="totais-gerais-titulo">Acumulado Geral do Bolão</div>
                 <div class="totais-gerais-valores">
@@ -109,8 +156,13 @@
     </div>
 
     <div class="grafico-box">
-        <h2> Gráfico de Desempenho Atuais (Total de Pontos)</h2>
+        <h2>📈 Gráfico de Desempenho Atuais (Total de Pontos)</h2>
         <div class="container-linhas-grafico" id="grafico-container"></div>
+        
+        <div class="container-campeao-podio" id="bloco-podio-campeao">
+            <div class="letreiro-titulo">✨ CAMPEÃO INCONTESTÁVEL DO BOLÃO ✨</div>
+            <h1 class="letreiro-nome" id="nome-campeao-texto">Aldicio</h1>
+        </div>
     </div>
 </div>
 
@@ -119,22 +171,15 @@
     let cachePesosManuais = {};
     let statsOrdenadasGlobais = [];
 
-    // MUDANÇA: O próprio index.html calcula o tipo de acerto baseado nos gols reais e palpites
     function descobrirEstiloAcerto(real1, real2, p1, p2) {
         if (real1 === "-" || real2 === "-" || p1 === "" || p2 === "" || p1 === undefined || p2 === undefined) {
             return { corBg: "", corTexto: "#000000", tipo: "none" };
         }
-        
         let r1 = Number(real1); let r2 = Number(real2);
         let pal1 = Number(p1); let pal2 = Number(p2);
-
-        if (r1 === pal1 && r2 === pal2) {
-            return { corBg: "var(--cor-placar)", corTexto: "#ffffff", tipo: "placar" };
-        } else if (Math.sign(r1 - r2) === Math.sign(pal1 - pal2)) {
-            return { corBg: "var(--cor-resultado)", corTexto: "#000000", tipo: "resultado" };
-        } else {
-            return { corBg: "var(--cor-bolamurcha)", corTexto: "#ffffff", tipo: "bolamurcha" };
-        }
+        if (r1 === pal1 && r2 === pal2) return { corBg: "var(--cor-placar)", corTexto: "#ffffff", tipo: "placar" };
+        if (Math.sign(r1 - r2) === Math.sign(pal1 - pal2)) return { corBg: "var(--cor-resultado)", corTexto: "#000000", tipo: "resultado" };
+        return { corBg: "var(--cor-bolamurcha)", corTexto: "#ffffff", tipo: "bolamurcha" };
     }
 
     Promise.all([
@@ -142,26 +187,20 @@
         fetch('pesos.json?t=' + new Date().getTime()).then(res => res.json()).catch(() => ({}))
     ])
     .then(([data, pesos]) => {
-        cacheDadosBolao = data;
-        cachePesosManuais = pesos;
-        
+        cacheDadosBolao = data; cachePesosManuais = pesos;
         document.getElementById('data-atualizacao').innerText = "Última atualização oficial: " + data.atualizadoEm;
 
         let totalGlobalPlacares = 0; let totalGlobalResultados = 0; let totalGlobalBolaMurcha = 0;
 
-        // 1. PROCESSAMENTO DE ESTATÍSTICAS BASEADO NO CÁLCULO DINÂMICO LOCAL
         let participantesStats = data.ranking.map(amigo => {
             let contadores = { placar: 0, resultado: 0, bolamurcha: 0 };
-            
             data.jogos.forEach(jogo => {
                 let palpite = jogo.palpites[amigo.nome];
-                
                 let real1 = "-"; let real2 = "-";
                 if (jogo.resultadoReal && jogo.resultadoReal !== "A jogar") {
                     let partes = jogo.resultadoReal.split("x");
                     if (partes.length === 2) { real1 = partes[0].trim(); real2 = partes[1].trim(); }
                 }
-
                 if (palpite && palpite.placar !== "") {
                     let partesPalpite = palpite.placar.split("x");
                     if (partesPalpite.length === 2) {
@@ -191,12 +230,15 @@
         statsOrdenadasGlobais = participantesStats;
         renderizarRankingGrid();
 
+        // Identifica dinamicamente quem é o líder absoluto do JSON
+        let nomeDoCampeaoReal = participantesStats.length > 0 ? participantesStats[0].nome : "Aldicio";
+        document.getElementById('nome-campeao-texto').innerText = nomeDoCampeaoReal;
+
         const cabecalho = document.getElementById('cabecalho-tabela');
         participantesStats.forEach(amigo => {
             const th = document.createElement('th'); th.className = 'col-palpiteiro'; th.innerText = amigo.nome; cabecalho.appendChild(th);
         });
 
-        // 2. MONTAGEM DA MATRIZ APLICANDO OS ESTILOS AUTOMÁTICOS
         const corpoTabela = document.getElementById('corpo-tabela');
         data.jogos.forEach(jogo => {
             const tr = document.createElement('tr');
@@ -205,9 +247,7 @@
                 const partes = jogo.resultadoReal.split("x");
                 if (partes.length === 2) { real1 = partes[0].trim(); real2 = partes[1].trim(); }
             }
-            
-            const tdConfronto = document.createElement('td');
-            tdConfronto.className = 'col-confronto';
+            const tdConfronto = document.createElement('td'); tdConfronto.className = 'col-confronto';
             tdConfronto.innerHTML = `
                 <div class="linha-alinhada"><span class="nome-time">${jogo.time1}</span><span class="gol-real">${real1}</span></div>
                 <div class="espaco-jogo"></div>
@@ -217,34 +257,17 @@
 
             participantesStats.forEach(amigo => {
                 const tdPalpite = document.createElement('td'); tdPalpite.className = 'col-palpiteiro';
-                tdPalpite.title = `${amigo.nome}\nPlacares: ${amigo.stats.placar}\nResultados: ${amigo.stats.resultado}\nBola Murcha: ${amigo.stats.bolamurcha}`;
-                
                 const dadosPalpite = jogo.palpites[amigo.nome];
                 if (dadosPalpite && dadosPalpite.placar !== "") {
                     const partesPalpite = dadosPalpite.placar.split("x");
                     if (partesPalpite.length === 2) {
-                        let p1 = partesPalpite[0].trim();
-                        let p2 = partesPalpite[1].trim();
-                        
-                        tdPalpite.innerHTML = `
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p1}</span></div>
-                            <div class="espaco-jogo"></div>
-                            <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p2}</span></div>
-                        `;
-                        
-                        // CALCULA E CLASSIFICA A COR EM TEMPO REAL NO NAVEGADOR
+                        let p1 = partesPalpite[0].trim(); let p2 = partesPalpite[1].trim();
+                        tdPalpite.innerHTML = `<div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p1}</span></div><div class="espaco-jogo"></div><div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">${p2}</span></div>`;
                         let estilo = descobrirEstiloAcerto(real1, real2, p1, p2);
-                        if (estilo.corBg !== "") {
-                            tdPalpite.style.backgroundColor = estilo.corBg;
-                            tdPalpite.style.color = estilo.corTexto;
-                        }
+                        if (estilo.corBg !== "") { tdPalpite.style.backgroundColor = estilo.corBg; tdPalpite.style.color = estilo.corTexto; }
                     } else { tdPalpite.innerText = "-"; }
                 } else {
-                    tdPalpite.innerHTML = `
-                        <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
-                        <div class="espaco-jogo"></div>
-                        <div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>
-                    `;
+                    tdPalpite.innerHTML = `<div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div><div class="espaco-jogo"></div><div class="linha-alinhada" style="justify-content: center;"><span class="gol-palpite">-</span></div>`;
                 }
                 tr.appendChild(tdPalpite);
             });
@@ -253,15 +276,52 @@
 
         const graficoContainer = document.getElementById('grafico-container');
         let maiorPontuacao = Math.max(...participantesStats.map(p => p.pontos), 10); 
+        
         participantesStats.forEach(amigo => {
             const linha = document.createElement('div'); linha.className = 'linha-grafico';
-            let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
+            let pctLargura = maiorPontuacao > 0 ? (amigo.pontos / maiorPontuacao) * 85 : 0; 
+            if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
             linha.innerHTML = `
                 <div class="label-nome-grafico" title="${amigo.nome}">${amigo.nome}</div>
-                <div class="area-barra-grafico"><div class="barra-3d" style="width: ${pctLargura}%;"><span class="valor-barra-3d">${amigo.pontos}</span></div></div>
+                <div class="area-barra-grafico"><div class="barra-3d" data-width="${pctLargura}%"><span class="valor-barra-3d">${amigo.pontos}</span></div></div>
             `;
             graficoContainer.appendChild(linha);
         });
+
+        // DISPARADOR SINCRONIZADO DO ESTOURO DE CONFETES (MOMENTO LEVANTAMENTO DA TAÇA)
+        setTimeout(() => {
+            const barras = document.querySelectorAll('.barra-3d');
+            barras.forEach(barra => {
+                barra.style.width = barra.getAttribute('data-width');
+                let numTexto = barra.querySelector('.valor-barra-3d');
+                if(numTexto) numTexto.style.opacity = "1";
+            });
+
+            // O estouro acontece aos 2500ms (exatamente quando a barra do líder termina a corrida lenta)
+            setTimeout(() => {
+                // 1. DISPARA A FESTA DE CONFETES DA TAÇA (Multi-disparos para cobrir a tela inteira)
+                let duracaoAnimacao = 3 * 1000;
+                let fimDoTempo = Date.now() + duracaoAnimacao;
+
+                (function frameDeFesta() {
+                    // Confetes caindo da esquerda
+                    confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0, y: 0.8 }, colors: ['#ffe066', '#f5b041', '#0d6efd', '#099078'] });
+                    // Confetes caindo da direita
+                    confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1, y: 0.8 }, colors: ['#ffe066', '#f5b041', '#0d6efd', '#099078'] });
+
+                    if (Date.now() < fimDoTempo) { requestAnimationFrame(frameDeFesta); }
+                }());
+
+                // Grande explosão central de papéis laminados dourados
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#ffe066', '#f5b041', '#e2b842', '#ffffff'] });
+
+                // 2. FAZ SURGIR O LETREIRO MAJESTOSO EMBAIXO DO GRÁFICO
+                document.getElementById('bloco-podio-campeao').style.display = "block";
+
+            }, 2500); 
+
+        }, 300);
+
     }).catch(error => { console.error(error); });
 
     function renderizarRankingGrid() {
@@ -279,13 +339,11 @@
         });
     }
 
-    // SIMULADOR DE MONTE CARLO (MANTIDO E ADAPTADO)
+    // SIMULADOR DE MONTE CARLO
     document.getElementById('titulo-ranking-clique').addEventListener('dblclick', () => {
         if (!cacheDadosBolao) return;
-        
         let jogosRealizados = cacheDadosBolao.jogos.filter(j => j.resultadoReal && j.resultadoReal !== "A jogar");
         let jogosPendentes = cacheDadosBolao.jogos.filter(j => !j.resultadoReal || j.resultadoReal === "A jogar");
-        
         if (jogosPendentes.length === 0) { alert("Todos os jogos já terminaram!"); return; }
 
         let vTimeA = 0; let empates = 0; let vTimeB = 0;
@@ -304,15 +362,13 @@
         let vitoriasSimuladas = {};
         statsOrdenadasGlobais.forEach(p => vitoriasSimuladas[p.nome] = 0);
 
-        const RODADAS_SIMULACAO = 20000;
+        const RODADAS_SIMULACAO = 2000;
 
         for (let r = 0; r < RODADAS_SIMULACAO; r++) {
             let tabelaFicticia = statsOrdenadasGlobais.map(p => ({ nome: p.nome, pontos: p.pontos, placaresFicticios: p.stats.placar }));
-
             jogosPendentes.forEach(jogo => {
                 let rng = Math.random();
                 let g1Simulado = 0; let g2Simulado = 0;
-
                 let configuracaoManual = cachePesosManuais[jogo.time1];
                 let pA = configuracaoManual ? configuracaoManual.a : pesoA_Copa;
                 let pE = configuracaoManual ? configuracaoManual.e : pesoE_Copa;
@@ -324,9 +380,7 @@
                 } else {
                     g2Simulado = Math.floor(Math.random() * 3) + 1; g1Simulado = Math.floor(Math.random() * g2Simulado);
                 }
-
                 let sinalReal = g1Simulado > g2Simulado ? 'M' : (g1Simulado < g2Simulado ? 'V' : 'E');
-
                 tabelaFicticia.forEach(p => {
                     let palpite = jogo.palpites[p.nome];
                     if (palpite && palpite.placar !== "") {
@@ -340,7 +394,6 @@
                     }
                 });
             });
-
             tabelaFicticia.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 if (b.placaresFicticios !== a.placaresFicticios) return b.placaresFicticios - a.placaresFicticios;
@@ -371,14 +424,7 @@
             <!DOCTYPE html>
             <html lang="pt-BR">
             <head><meta charset="UTF-8"><title>Relatório de Probabilidades por Força Real</title><style>body { font-family: -apple-system, sans-serif; background-color: #f1f5f9; padding: 30px; margin: 0; color: #334155; } .box { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); } h1 { font-size: 20px; margin-top: 0; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; } table { width: 100%; border-collapse: collapse; font-size: 14px; } .info { font-size: 12px; color: #94a3b8; margin-top: 15px; text-align: center; }</style></head>
-            <body>
-                <div class="box">
-                    <h1>🔮 Probabilidades Ponderadas por Confronto Direto</h1>
-                    <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Relatório confidencial do Administrador. As forças foram calibradas mapeando as chaves do arquivo externo <strong>pesos.json</strong>.</p>
-                    <table><tbody>${linhasTabelaHtml}</tbody></table>
-                    <div class="info">Análise de Dados Oculta - Modelo Avançado Monte Carlo - run 20k.</div>
-                </div>
-            </body>
+            <body><div class="box"><h1>🔮 Probabilidades Ponderadas por Confronto Direto</h1><p style="font-size:13px; color:#64748b; margin-bottom:20px;">Relatório confidencial do Admin. Forças calibradas mapeando <strong>pesos.json</strong>.</p><table><tbody>${linhasTabelaHtml}</tbody></table><div class="info">Análise de Dados Oculta - Modelo Avançado Monte Carlo.</div></div></body>
             </html>
         `);
         novaAba.document.close();
