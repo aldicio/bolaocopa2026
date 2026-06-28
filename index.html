@@ -61,47 +61,31 @@
         .label-nome-grafico { width: 120px; text-align: right; padding-right: 15px; font-weight: bold; font-size: 14px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .area-barra-grafico { flex-grow: 1; background-image: linear-gradient(to right, transparent 99%, rgba(0, 0, 0, 0.06) 99%); background-size: 10% 100%; position: relative; padding: 2px 0; }
         
+        /* BARRA PADRÃO (Participantes gerais) */
         .barra-3d { 
             height: 24px; 
-            background: linear-gradient(to bottom, #5d7e8a 0%, #435e6a 50%, #2f4550 100%); 
-            border-top: 1px solid #7ea3b3; border-left: 1px solid #7ea3b3; border-bottom: 2px solid #1a2930; border-right: 2px solid #1a2930; 
-            position: relative; box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.35); 
+            background: linear-gradient(to bottom, #7a8a91 0%, #596b73 50%, #405057 100%); 
+            border-top: 1px solid #9fb0b8; border-left: 1px solid #9fb0b8; border-bottom: 2px solid #242f33; border-right: 2px solid #242f33; 
+            position: relative; box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.25); 
             width: 0%; 
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease-in-out, border-color 0.4s ease-in-out; 
             display: flex; align-items: center; justify-content: flex-end; 
         }
 
-        /* CONTAINER FLUTUANTE DA PONTUAÇÃO E BADGES (Ajustado para Nitidez) */
-        .bloco-info-flutuante {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-right: -130px; /* Aloca espaço para os badges na direita da barra */
-            z-index: 2;
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out;
-            white-space: nowrap;
+        /* NOVO: CLASSE DO LÍDER DINÂMICO (Azul Copa Vibrante) */
+        .barra-3d.lider-atual {
+            background: linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%) !important;
+            border-top: 1px solid #60a5fa !important;
+            border-left: 1px solid #60a5fa !important;
+            border-bottom: 2px solid #172554 !important;
+            border-right: 2px solid #172554 !important;
+            box-shadow: 4px 4px 8px rgba(29, 78, 216, 0.4);
         }
 
-        /* TEXTO DOS PONTOS: Modificado para Máxima Nitidez */
-        .valor-barra-3d { 
-            color: #ff0000; /* Vermelho vivo nítido */
-            font-family: Arial, Helvetica, sans-serif; /* Fonte limpa e encorpada */
-            font-size: 20px; 
-            font-weight: 900; 
-            text-shadow: 2px 2px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff; /* Contorno branco completo para destacar contra qualquer fundo */
-        }
+        .bloco-info-flutuante { display: flex; align-items: center; gap: 6px; margin-right: -130px; z-index: 2; opacity: 0; transition: opacity 1.5s ease-in-out; white-space: nowrap; }
+        .valor-barra-3d { color: #ff0000; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 900; text-shadow: 2px 2px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff; }
 
-        /* ESTILO DOS BADGES JOGO A JOGO (P, R, B) */
-        .badge-mini-stats {
-            font-family: -apple-system, sans-serif;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 2px 5px;
-            border-radius: 4px;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
+        .badge-mini-stats { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 4px; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.1); }
         .badge-mini-stats.p-badge { background-color: var(--cor-placar); color: #fff; }
         .badge-mini-stats.r-badge { background-color: var(--cor-resultado); color: #000; }
         .badge-mini-stats.b-badge { background-color: var(--cor-bolamurcha); color: #fff; }
@@ -185,7 +169,6 @@
 
         let jogosRealizados = data.jogos.filter(j => j.resultadoReal && j.resultadoReal !== "A jogar");
 
-        // Estrutura expandida para acumular pontos E contadores individuais de acertos passo a passo
         let pontuacaoHistoricaAmigos = {};
         data.ranking.forEach(r => {
             pontuacaoHistoricaAmigos[r.nome] = { nome: r.nome, pontos: 0, placares: 0, resultados: 0, bolamurcha: 0 };
@@ -216,7 +199,7 @@
         renderizarRankingGridFinal(data.ranking);
 
         let jogoIndex = 0;
-        const DELAY_ENTRE_JOGOS = 1300; // Tempo ligeiramente estendido para dar tempo de ler as estatísticas mudando
+        const DELAY_ENTRE_JOGOS = 1300; 
 
         function rodarPassoHistorico() {
             if (jogoIndex >= jogosRealizados.length) {
@@ -224,6 +207,12 @@
                 let vencedorFinal = data.ranking[0].nome;
                 document.getElementById('nome-campeao-texto').innerText = vencedorFinal;
                 
+                // MANTÉM APENAS O LÍDER SUPREMO EM AZUL NO FINAL
+                document.querySelectorAll('.barra-3d').forEach(b => b.classList.remove('lider-atual'));
+                let idLimpoVencedor = vencedorFinal.replace(/\s+/g, '_');
+                let barraVencedora = document.getElementById(`barra-amigo-${idLimpoVencedor}`);
+                if (barraVencedora) barraVencedora.classList.add('lider-atual');
+
                 setTimeout(() => {
                     let fimFesta = Date.now() + 3000;
                     (function frame() {
@@ -243,7 +232,6 @@
             let partesReal = jogoAtual.resultadoReal.split("x");
             let r1 = partesReal[0].trim(); let r2 = partesReal[1].trim();
 
-            // MÁGICA: Varre e incrementa os contadores específicos de tipo de acerto passo a passo
             Object.keys(pontuacaoHistoricaAmigos).forEach(nome => {
                 let palpite = jogoAtual.palpites[nome];
                 if (palpite && palpite.placar !== "") {
@@ -266,15 +254,24 @@
             let listaPontosValores = Object.values(pontuacaoHistoricaAmigos).map(p => p.pontos);
             let maiorPontuacaoPasso = Math.max(...listaPontosValores, 10);
 
+            // DETECÇÃO DO LÍDER DO PASSO ATUAL
             Object.values(pontuacaoHistoricaAmigos).forEach(amigo => {
                 let idLimpo = amigo.nome.replace(/\s+/g, '_');
-                let pctLargura = (amigo.pontos / maiorPontuacaoPasso) * 82; // Ajuste na escala máxima para evitar estouro de tela com badges
+                let pctLargura = (amigo.pontos / maiorPontuacaoPasso) * 82; 
                 if (pctLargura < 2 && amigo.pontos > 0) pctLargura = 2;
 
                 let barraEl = document.getElementById(`barra-amigo-${idLimpo}`);
-                if (barraEl) barraEl.style.width = `${pctLargura}%`;
+                if (barraEl) {
+                    barraEl.style.width = `${pctLargura}%`;
+                    
+                    // LÓGICA DE PINTRAR DE AZUL: Se o participante tiver a pontuação igual à máxima atual do passo, ganha a classe 'lider-atual'
+                    if (amigo.pontos === maiorPontuacaoPasso && amigo.pontos > 0) {
+                        barraEl.classList.add('lider-atual');
+                    } else {
+                        barraEl.classList.remove('lider-atual');
+                    }
+                }
 
-                // Altera as strings de informação flutuante dinamicamente
                 let textoEl = document.getElementById(`texto-pontos-${idLimpo}`);
                 if (textoEl) textoEl.innerText = `${amigo.pontos} pts`;
 
@@ -287,7 +284,6 @@
                 let bBEl = document.getElementById(`badge-b-${idLimpo}`);
                 if (bBEl) bBEl.innerText = `B:${amigo.bolamurcha}`;
 
-                // Faz o bloco de informações surgir de forma suave no primeiro passo
                 let blocoFlutuante = document.getElementById(`bloco-flutuante-${idLimpo}`);
                 if (blocoFlutuante) blocoFlutuante.style.opacity = "1";
             });
@@ -348,13 +344,6 @@
             rankingContainer.appendChild(card);
         });
     }
-
-    document.getElementById('titulo-ranking-clique').addEventListener('dblclick', () => {
-        if (!cacheDadosBolao) return;
-        let novaAba = window.open('', '_blank');
-        novaAba.document.write(`<html><head><title>Painel Admin</title></head><body><h2 style="font-family:sans-serif;text-align:center;margin-top:50px;">🏆 Parabéns Aldicio! Vitória histórica consolidada de ponta a ponta.</h2></body></html>`);
-        novaAba.document.close();
-    });
 </script>
 </body>
 </html>
